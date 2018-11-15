@@ -1,5 +1,14 @@
 /*FAKTA*/
 
+/* MAXIMUM */
+maxHealth(100).
+maxInventori(10).
+maxWeapon(50).
+maxMagazine(50).
+maxArmor(50).
+maxMedicine(50).
+maxEnemy(9).
+
 /*WEAP0ON*/
 weapon(deagle).
 weapon(ak47).
@@ -9,12 +18,12 @@ weapon(uzi).
 weapon(awp).
 
 /*AMMO*/
-ammo(deagle,7).
-ammo(ak47,30).
-ammo(m4a1,30).
-ammo(shotgun,8).
-ammo(uzi,30).
-ammo(awp,10).
+ammoMax(deagle,7).
+ammoMax(ak47,30).
+ammoMax(m4a1,30).
+ammoMax(shotgun,8).
+ammoMax(uzi,30).
+ammoMax(awp,10).
 
 /*DAMAGE*/
 damage(deagle,10).
@@ -25,9 +34,9 @@ damage(uzi,15).
 damage(awp,100).
 
 /*MAGAZINE*/
-magazine(lv1,5).
-magazine(lv2,8).
-magazine(lv3,10).
+magazine(magazinelv1,5).
+magazine(magazinelv2,8).
+magazine(magazinelv3,10).
 
 /*ARMOR*/
 armor(armorlv1).
