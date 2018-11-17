@@ -64,8 +64,8 @@ execute(take(X)) :- take(X).
 execute(use(X)):- use(X).
 execute(drop(X)):- drop(X).
 execute(attack) :- attack.
-execute(save) :- saveAll.
-execute(load) :- loadAll.
+execute(save(X)) :- saveAll(X),write('Game saved.').
+execute(load(X)) :- loadAll(X),write('Game loaded.').
 execute(list) :- findall(1,(benda('E',_,X,Y),write(X),write(' '),write(Y),nl),_).
 
 enemyDo :- enemyAttack.

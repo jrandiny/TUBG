@@ -21,12 +21,12 @@ savePlayer(Stream) :-
     format(Stream,'pArmor(%d).',[Armor]),nl(Stream),
     format(Stream,'pWeapon(%s).',[Weapon]),nl(Stream),
     format(Stream,'pInventoriAmmo(%d).',[IAmmo]),nl(Stream),
-    format(Stream,'pCurrAmmo(%d).',[CurrAmmo]).
+    format(Stream,'pCurrAmmo(%d).',[CurrAmmo]),nl(Stream).
 
 saveMaxInventori(Stream) :-
     maxInventori(Max),format(Stream,'maxInventori(%d).',[Max]),nl(Stream).
     
-saveAll :- open('save.pl',write,Stream),
+saveAll(NamaFile) :- open(NamaFile,write,Stream),
            (
                saveLoc(Stream),savePetaSize(Stream),saveBenda(Stream),savePeta(Stream),saveInventori(Stream),savePlayer(Stream),saveMaxInventori(Stream)
            ),
@@ -41,7 +41,7 @@ readAll(Stream) :- at_end_of_stream(Stream).
 readAll(Stream) :- \+(at_end_of_stream(Stream)),
                    read(Stream,X),assertz(X),readAll(Stream).
 
-loadAll :- open('save.pl', read, Stream),(
+loadAll(NamaFile) :- open(NamaFile, read, Stream),(
            removeAll,readAll(Stream)
            ),
            close(Stream).
