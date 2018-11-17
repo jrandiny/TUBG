@@ -17,8 +17,9 @@ move(n) :- canMove(n),locY(CurrY),retract(locY(CurrY)), NewY is CurrY-1, assertz
 move(s) :- canMove(s),locY(CurrY),retract(locY(CurrY)), NewY is CurrY+1, assertz(locY(NewY)),printMove.
 
 /*MENGECILKAN MAP*/
-resize:- resizeChance(X),real_time(Time),Chance is Time mod X, Chance =:= 0,petaSize(Size),retractall(petaSize(_)),asserta(petaSize(Size-2)).
+resize:- resizeChance(X),real_time(Time),Chance is Time mod X, Chance =:= 0,
+         petaSize(Size),Size>2,retractall(petaSize(_)),asserta(petaSize(Size-2)),write('\n\nThe map has shrink!').
 resize.
 
 terrainXY(X,Y,Terrain):- isInside(X,Y),peta(Peta),EvalY is Y,nth(EvalY,Peta,PetaY),EvalX is X,nth(EvalX,PetaY,Lokasi),terrainLabel(Lokasi,Terrain),!.
-terrainXY(X,Y,Terrain):- Terrain = 'deadzone'.
+terrainXY(_,_,Terrain):- Terrain = 'deadzone'.

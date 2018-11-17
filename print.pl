@@ -7,9 +7,20 @@ printMap(_,Y):- getTopLeft(_,YPojok),Y<YPojok,printXHoriz(34),!,printMap(1, Y+1)
 printMap(_,Y):- getBottomRight(_,YBawah), Y>YBawah,printXHoriz(34),!,printMap(1,Y+1).
 printMap(X,Y):- X>12,nl,!,printMap(1,Y+1).
 printMap(X,Y):- isInside(X,Y),locX(XPlayer),locY(YPlayer),X=:=XPlayer,Y=:=YPlayer,write(' P '),!,printMap(X+1,Y).
+% printMap(X,Y):- isInside(X,Y),findall(1,(benda('E',_,CurrX,CurrY),CurrX=:=X,CurrY=:=Y),Bag),length(Bag,ListEnemy),ListEnemy>0,write(' E '),!,printMap(X+1,Y).
 printMap(X,Y):- isInside(X,Y),write(' - '),!,printMap(X+1,Y).
 printMap(X,Y):- X=1,write('X '),!,printMap(X+1,Y).
 printMap(X,Y):- write(' X '),!,printMap(X+1,Y).
+
+printEnemyMap(_,Y):- Y>12,!.
+printEnemyMap(_,Y):- getTopLeft(_,YPojok),Y<YPojok,printXHoriz(34),!,printEnemyMap(1, Y+1).
+printEnemyMap(_,Y):- getBottomRight(_,YBawah), Y>YBawah,printXHoriz(34),!,printEnemyMap(1,Y+1).
+printEnemyMap(X,Y):- X>12,nl,!,printEnemyMap(1,Y+1).
+printEnemyMap(X,Y):- isInside(X,Y),locX(XPlayer),locY(YPlayer),X=:=XPlayer,Y=:=YPlayer,write(' P '),!,printEnemyMap(X+1,Y).
+printEnemyMap(X,Y):- isInside(X,Y),findall(1,(benda('E',_,CurrX,CurrY),CurrX=:=X,CurrY=:=Y),Bag),length(Bag,ListEnemy),ListEnemy>0,write(' E '),!,printEnemyMap(X+1,Y).
+printEnemyMap(X,Y):- isInside(X,Y),write(' - '),!,printEnemyMap(X+1,Y).
+printEnemyMap(X,Y):- X=1,write('X '),!,printEnemyMap(X+1,Y).
+printEnemyMap(X,Y):- write(' X '),!,printEnemyMap(X+1,Y).
 
 /* objek('W',Nama,LocX,LocY)*/
 printlook(X,Y) :- \+(isInside(X,Y)), write(' X '),!.
@@ -20,7 +31,7 @@ printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='A',
 printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='O',format(' %s ',[Simbol]),!.
 printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='B',format(' %s ',[Simbol]),!.
 printlook(X,Y) :- locX(LocX), locY(LocY), LocX =:= X, LocY =:= Y, Simbol='P',format(' %s ',[Simbol]),!.
-printlook(X,Y) :- write(' - '),!.
+printlook(_,_) :- write(' - '),!.
  
 surround(X,Y) :- printlook(X-1,Y-1),printlook(X,Y-1),printlook(X+1,Y-1),nl,
                  printlook(X-1,Y),printlook(X,Y),printlook(X+1,Y),nl,
@@ -44,7 +55,7 @@ X _ _
 */
 look :- locX(X),locY(Y),printAllObject,nl,surround(X,Y).
 printAllObject :- findall(1,(locX(X),locY(Y),printObject(X,Y)),_).
-printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'E', write('You see an enemy. ').
+printObject(X,Y) :- benda(Sign,_,X,Y),Sign == 'E', write('You see an enemy. ').
 printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'W', format('You see an empty %s',[ObjName]),write(' lying on the grass. ').
 printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign \== 'E',Sign \== 'W', format('You see a %s. ',[ObjName]).
 printObject(X,Y) :- \+(benda(_,_,X,Y)),write('There is nothing in your place.').
