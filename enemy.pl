@@ -31,7 +31,7 @@ isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y), Ret=1,!.
 isSurroundPlayer(X,Y,Ret) :- cekP(X-1,Y+1), Ret=1,!.
 isSurroundPlayer(X,Y,Ret) :- cekP(X,Y+1), Ret=1,!.
 isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y+1),Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- Ret = 0.
+isSurroundPlayer(_,_,0).
 
 
 deadAllEnemy:- findall(1,(benda('E',_,X,Y),deadEnemy(X,Y)),_).
@@ -46,11 +46,14 @@ attack :- locX(CurrX),locY(CurrY),enemyAttack,!,\+pWeapon(none),isCurrAmmoAvaiab
 
 enemyAttack:- locX(CurrX),locY(CurrY),benda('E',Weapon,CurrX,CurrY),damage(Weapon,Hit),
             pArmor(Armor),Armor>=Hit,!,retract(pArmor(_)),NewArmor is Armor-Hit,asserta(pArmor(NewArmor)),
-            format('You have been attacked by %s and your armor has received %d damage. ',[Weapon,Hit]).
+            format('You have been attacked by %s and your armor has received %d damage.\n',[Weapon,Hit]).
 enemyAttack:- locX(CurrX),locY(CurrY),benda('E',Weapon,CurrX,CurrY),damage(Weapon,Hit),
-            pArmor(Armor),Armor<Hit,!,pHealth(HP),retract(pHealth(_)),retract(pArmor(_)),
+            pArmor(Armor),Armor>0,Armor<Hit,!,pHealth(HP),retract(pHealth(_)),retract(pArmor(_)),
             SisaAttack is Hit-Armor,asserta(pArmor(0)),
-            NewHP is HP-SisaAttack,asserta(pHealth(NewHP)).
-            format('You have been attacked by %s, your armor has gone, and your health is reduced by %d. ',[Weapon,SisaAttack]).      
-enemyAttack:- locX(CurrX),locY(CurrY),benda('E',Weapon,CurrX,CurrY),damage(Weapon,Hit),
-            pHealth(HP),retract(pHealth(_)),NewHP is HP-Hit,asserta(pHealth(NewHP)),format('You have been attacked by %s, you were shot directly without using armor and received %d damage. ',[Weapon,SisaAttack]).
+            NewHP is HP-SisaAttack,asserta(pHealth(NewHP)),
+            format('You have been attacked by %s, your armor has gone, and your health is reduced by %d.\n',[Weapon,SisaAttack]).      
+enemyAttack:- locX(CurrX),locY(CurrY),
+                benda('E',Weapon,CurrX,CurrY),damage(Weapon,Hit),
+            pHealth(HP),retract(pHealth(_)),
+            NewHP is HP-Hit,asserta(pHealth(NewHP)),
+            format('You have been attacked by %s, you were shot directly without using armor and received %d damage.\n',[Weapon,Hit]).
