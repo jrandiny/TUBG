@@ -3,10 +3,10 @@
 /* MAXIMUM */
 maxpHealth(100).
 maxpArmor(100).
-maxWeapon(100).
-maxMagazine(100).
-maxArmor(100).
-maxMedicine(100).
+maxWeapon(15).
+maxMagazine(15).
+maxArmor(15).
+maxMedicine(15).
 maxEnemy(9).
 maxAmmoPack(10).
 maxBag(10).

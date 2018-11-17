@@ -73,12 +73,12 @@ printWeapon :- pCurrAmmo(CurrAmmo), CurrAmmo =:= 0, !.
 printWeapon :- pCurrAmmo(CurrAmmo), format('\nAmmo: %d',[CurrAmmo]).
 
 
-tulisAmmo(Count) :- Count=\=0, maxAmmoPack(MaxAmmo),Count >MaxAmmo, format('   Pack of ammo (%d)',[MaxAmmo]),NewAmmo is Count - MaxAmmo,nl,!,tulisAmmo(NewAmmo).
-tulisAmmo(Count) :- Count=\=0, format('   Pack of ammo (%d)',[Count]),nl.
+tulisAmmo(Count) :- Count=\=0, maxAmmoPack(MaxAmmo),Count >MaxAmmo, format('\n   Pack of ammo (%d)',[MaxAmmo]),NewAmmo is Count - MaxAmmo,!,tulisAmmo(NewAmmo).
+tulisAmmo(Count) :- Count=\=0, format('\n   Pack of ammo (%d)',[Count]).
 tulisAmmo(0).
 
-tulisInventori([H]) :- H = none,pInventoriAmmo(Ammo),Ammo =:=0,!,write('Your inventory is empty!'),nl.
-tulisInventori([H]) :- write('Inventory: '),nl,pInventoriAmmo(Ammo),tulisAmmo(Ammo),H==none,!.
+tulisInventori([H]) :- H = none,pInventoriAmmo(Ammo),Ammo =:=0,!,write('Your inventory is empty!').
+tulisInventori([H]) :- write('Inventory: '),pInventoriAmmo(Ammo),tulisAmmo(Ammo),H==none,!.
 tulisInventori([H]) :- nl,write('   '),write(H).
 tulisInventori([H|T]) :- tulisInventori(T),nl,write('   '),write(H),!.
 
@@ -123,7 +123,7 @@ printHelp :-    write('Available commands: '), nl,
                 write('   quit. -- quit the game'),nl,
                 write('   look. -- look around you'),nl,
                 write('   n. s. e. w. -- move'),nl,
-                write('   map. -- look at the map and detect enemies'),nl,
+                write('   map. -- look at the map, show the deadzone and the safezone'),nl,
                 write('   take(Object). -- pick up an object'),nl,
                 write('   drop(Object). -- drop an object'),nl,
                 write('   use(Object). -- use an object'),nl,                                

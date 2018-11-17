@@ -51,7 +51,7 @@ start :- setupGame,
             (Ans == quit; loseGame ; winGame),!.
 
 
-execute(quit).
+execute(quit):- write('You quit the game.').
 execute(look) :- look.
 execute(help) :- printHelp.
 execute(status):- status.
@@ -68,7 +68,7 @@ execute(save(X)) :- saveAll(X),write('Game saved.').
 execute(load(X)) :- loadAll(X),write('Game loaded.').
 execute(list) :- findall(1,(benda('E',_,X,Y),write(X),write(' '),write(Y),nl),_).
 
-enemyDo :- enemyAttack.
+enemyDo :- enemyAttack,!.
 enemyDo.
 
 routineCheck :- resize,deadAllEnemy,resolveAllEnemy,moveAllEnemy.
@@ -80,7 +80,7 @@ loseGame:- locX(X),locY(Y),\+isInside(X,Y),write('The deadzone catches you!'),!.
 randomDrop:- dropChance(X),real_time(Time),Chance is Time mod X, Chance =:= 0,
             random(1,5,Random),
             dropRandomBase(Base),dropRandomMax(Max),random(Base,Max,RandomCount),
-            dropRandomObject(Random,RandomCount).
+            dropRandomObject(Random,RandomCount),!.
 randomDrop.
 
 dropRandomObject(1,Count):- findall(Object,weapon(Object),Bag),
