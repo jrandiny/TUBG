@@ -7,7 +7,7 @@ maxWeapon(15).
 maxMagazine(15).
 maxArmor(15).
 maxMedicine(15).
-maxEnemy(9).
+maxEnemy(15).
 maxAmmoPack(10).
 maxBag(10).
 
@@ -85,7 +85,7 @@ sign(Object,'O') :- magazine(Object,_).
 sign(Object,'B') :- bag(Object,_).
 
 /*RANDOM*/
-dropChance(10).
-resizeChance(50).
+dropChance(15).
+resizeChance(10).
 dropRandomBase(5).
 dropRandomMax(9).
