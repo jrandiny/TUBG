@@ -12,14 +12,19 @@ printMap(X,Y):- X=1,write('X '),!,printMap(X+1,Y).
 printMap(X,Y):- write(' X '),!,printMap(X+1,Y).
 
 /* objek('W',Nama,LocX,LocY)*/
-
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, format(' %s ',[Simbol]),!.
 printlook(X,Y) :- \+(isInside(X,Y)), write(' X '),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='E',format(' %s ',[Simbol]),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='M',format(' %s ',[Simbol]),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='W',format(' %s ',[Simbol]),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='A',format(' %s ',[Simbol]),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='O',format(' %s ',[Simbol]),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='B',format(' %s ',[Simbol]),!.
+printlook(X,Y) :- locX(LocX), locY(LocY), LocX =:= X, LocY =:= Y, Simbol='P',format(' %s ',[Simbol]),!.
 printlook(X,Y) :- write(' - '),!.
  
 surround(X,Y) :- printlook(X-1,Y-1),printlook(X,Y-1),printlook(X+1,Y-1),nl,
                  printlook(X-1,Y),printlook(X,Y),printlook(X+1,Y),nl,
-                 printlook(X-1,Y+1),printlook(X,Y+1),printlook(X+1,Y+1),nl.
+                 printlook(X-1,Y+1),printlook(X,Y+1),printlook(X+1,Y+1).
 
 /*
 Look ​ /0 ​ : menuliskan petak-petak 3x3 di sekitar pemain dengan posisi pemain saat ini
@@ -37,7 +42,17 @@ X W _
 X _ _
 
 */
-look :- locX(X),locY(Y),surround(X,Y).
+look :- locX(X),locY(Y),printAllObject,nl,surround(X,Y).
+printAllObject :- findall(1,(locX(X),locY(Y),printObject(X,Y)),_).
+printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'E', write('You see an enemy. ').
+printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'W', format('You see an empty %s',[ObjName]),write(' lying on the grass. ').
+printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign \== 'E',Sign \== 'W', format('You see a %s. ',[ObjName]).
+printObject(X,Y) :- \+(benda(_,_,X,Y)),write('There is nothing in your place.').
+
+/*
+deadAllEnemy:- findall(1,(benda('E',_,X,Y),deadEnemy(X,Y)),_).
+deadEnemy(X,Y):- \+isInside(X,Y),retract(benda('E',_,X,Y)).
+*/
 
 status:- write('Health: '),
         pHealth(Health),
@@ -46,14 +61,50 @@ status:- write('Health: '),
         pArmor(Armor),
         write(Armor), nl,
         write('Weapon: '),
-        pWeapon(Weapon),
-        write(Weapon),nl,
+        printWeapon,nl,
+        write('Max Inventory: '),
+        maxInventori(MaxInventori),
+        write(MaxInventori), nl,        
         findall(Inventori,pInventori(Inventori),Bag),
         tulisInventori(Bag),!. /*print list*/
 
-tulisInventori([H]) :- H = none,!,write('Your inventory is empty!'),nl.
-tulisInventori([H]) :- write('Inventory: '),nl,write('   '),write(H),nl.
-tulisInventori([H|T]) :- tulisInventori([T]),write('   '),write(H),nl,!.
+printWeapon :- pWeapon(Weapon),write(Weapon),Weapon == none,!.
+printWeapon :- pCurrAmmo(CurrAmmo), CurrAmmo =:= 0, !.
+printWeapon :- pCurrAmmo(CurrAmmo), format('\nAmmo: %d',[CurrAmmo]).
+
+
+tulisAmmo(Count) :- Count=\=0, maxAmmoPack(MaxAmmo),Count >MaxAmmo, format('   Pack of ammo (%d)',[MaxAmmo]),NewAmmo is Count - MaxAmmo,nl,!,tulisAmmo(NewAmmo).
+tulisAmmo(Count) :- Count=\=0, format('   Pack of ammo (%d)',[Count]),nl.
+tulisAmmo(0).
+
+tulisInventori([H]) :- H = none,pInventoriAmmo(Ammo),Ammo =:=0,!,write('Your inventory is empty!'),nl.
+tulisInventori([H]) :- write('Inventory: '),nl,pInventoriAmmo(Ammo),tulisAmmo(Ammo),H==none,!.
+tulisInventori([H]) :- nl,write('   '),write(H).
+tulisInventori([H|T]) :- tulisInventori(T),nl,write('   '),write(H),!.
+
+printMove:- locX(X),locY(Y),
+                terrainXY(X,Y,TerrainNow),
+                format('You are in %s. ',[TerrainNow]),
+                printMoveEnemy(X,Y),
+                printMoveNorth(X,Y),
+                printMoveEast(X,Y),
+                printMoveSouth(X,Y),
+                printMoveWest(X,Y).
+
+printMoveNorth(X,Y):- locX(X),locY(Y),
+                      terrainXY(X,Y-1,Terrain),
+                      format('To the north is %s. ',[Terrain]).
+printMoveEast(X,Y):- locX(X),locY(Y),
+                     terrainXY(X+1,Y,Terrain),
+                     format('To the east is %s. ',[Terrain]).
+printMoveSouth(X,Y):- locX(X),locY(Y),
+                      terrainXY(X,Y+1,Terrain),
+                      format('To the south is %s. ',[Terrain]).
+printMoveWest(X,Y):- locX(X),locY(Y),
+                     terrainXY(X-1,Y,Terrain),
+                     format('To the west is %s.',[Terrain]).                                                                        
+printMoveEnemy(X,Y):- benda('E',_,X,Y),write('You encounter an enemy! Kill or be killed! ').
+printMoveEnemy(_,_).
 
 
 printWelcome :- write(' ______  _     _ ______   ______                  _             '),nl,
@@ -74,7 +125,7 @@ printHelp :-    write('Available commands: '), nl,
                 write('   n. s. e. w. -- move'),nl,
                 write('   map. -- look at the map and detect enemies'),nl,
                 write('   take(Object). -- pick up an object'),nl,
-                write('   drop. -- drop an object'),nl,
+                write('   drop(Object). -- drop an object'),nl,
                 write('   use(Object). -- use an object'),nl,                                
                 write('   attack. -- attack enemy that crosses your path'),nl,
                 write('   status. -- show your status'),nl,
@@ -84,15 +135,12 @@ printHelp :-    write('Available commands: '), nl,
                 write('W = weapon'),nl,                 
                 write('A = armor'),nl, 
                 write('M = medicine'),nl, 
-                write('O = ammo'),nl, 
+                write('O = ammo'),nl,
+                write('B = bag'),nl, 
                 write('P = player'),nl, 
                 write('E = enemy'),nl,
                 write('- = accessible'),nl,
                 write('X = inaccessible'),nl.
 
-/* take(X) :- canTake(X), asserta(PInventori(X)), write('You took the '), write(X),nl.
-   use(X) :- canUse(X), weapon(X), write(X), write(' is equipped. But the gun's empty, mate.'), nl.
-   use(X) :- canUse(X), magazine(X,Y), nl.        
-*/
 
                                                                                                                                                                 

@@ -1,41 +1,56 @@
-setupRandEnemy :- random(5,11,MaxEnemies),
-                  while_randomEnemy(MaxEnemies,'E')
-                  
-while_randomEnemy(_,0,_).
-while_randomEnemy(N,Sign) :- !,N>0,
-                        petaSize(Size),
-                        Base is ((12-Size)//2)+1,
-                        Max is (Base+Size),
-                        random(Base,Max,LocX),
-                        random(Base,Max,LocY),
-                        randomWeapon(Weapon),
-                        asserta(enemy(Sign,Weapon,LocX,LocY)),
-                        while_randomEnemy(N-1,Sign).
+/* RULES UNTUK PERGERAKAN ENEMY */
 
-randWeapon(Weapon):- findall(Object, weapon(Object),ListWeapon)
-                     length(ListWeapon,TmpCount),
-                     Count is TmpCount+1,
-                     random(1,Count,Idx),
-                     nth(Idx,ListWeapon,Weapon),
-                     
+canMoveE(Direction,X,Y):- Direction == n,isInside(X,Y-1).
+canMoveE(Direction,X,Y):- Direction == e,isInside(X+1,Y).
+canMoveE(Direction,X,Y):- Direction == s,isInside(X,Y+1).
+canMoveE(Direction,X,Y):- Direction == w,isInside(X-1,Y).
 
-canMove(Direction) :- Direction == n, locX(X), locY(Y), isInside(X,Y-1).
-canMove(Direction) :- Direction == e, locX(X), locY(Y), isInside(X+1,Y).
-canMove(Direction) :- Direction == s, locX(X), locY(Y), isInside(X,Y+1).
-canMove(Direction) :- Direction == w, locX(X), locY(Y), isInside(X-1,Y).  
+moveE(e,X,Y) :- canMoveE(e,X,Y),retract(benda('E',Weapon,X,Y)),NewX is X+1, asserta(benda('E',Weapon,NewX,Y)).
+moveE(w,X,Y) :- canMoveE(w,X,Y),retract(benda('E',Weapon,X,Y)),NewX is X-1, asserta(benda('E',Weapon,NewX,Y)).
+moveE(n,X,Y) :- canMoveE(n,X,Y),retract(benda('E',Weapon,X,Y)),NewY is Y-1, asserta(benda('E',Weapon,X,NewY)).
+moveE(s,X,Y) :- canMoveE(s,X,Y),retract(benda('E',Weapon,X,Y)),NewY is Y+1, asserta(benda('E',Weapon,X,NewY)).
 
-moveE(e) :- canMove(e),benda('E',_,CurrX,CurrY),locX(CurrX),retract(locX(CurrX)), NewX is CurrX+1, asserta(locX(NewX)).
-moveE(w) :- canMove(w),benda('E',_,CurrX,CurrY),locX(CurrX),retract(locX(CurrX)), NewX is CurrX-1, asserta(locX(NewX)).
-moveE(n) :- canMove(n),benda('E',_,CurrX,CurrY),locY(CurrY),retract(locY(CurrY)), NewY is CurrY-1, asserta(locY(NewY)).
-moveE(s) :- canMove(s),benda('E',_,CurrX,CurrY),locY(CurrY),retract(locY(CurrY)), NewY is CurrY+1, asserta(locY(NewY)).
+moveAllEnemy :- findall(1,(benda('E',_,X,Y),moveEnemy(X,Y)),_).
+            
+moveEnemy(X,Y):- random(1,5,Temp),isSurroundPlayer(X,Y,Ret),Ret=:=0,
+                 moveList(Temp,Sign),moveE(Sign,X,Y).
 
-moveAllEnemy :- random(1,5,temp),
-                moveList(temp,Sign),
-                moveE(Sign).
+moveList(X,Y) :- X = 1, Y = n,!.
+moveList(X,Y) :- X = 2, Y = e,!.
+moveList(X,Y) :- X = 3, Y = s,!.
+moveList(X,Y) :- X = 4, Y = w,!.
+
+cekP(X,Y) :- locX(XP),locY(YP),X =:=XP,Y =:= YP.
+
+isSurroundPlayer(X,Y,Ret) :- cekP(X-1,Y-1), Ret = 1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X,Y-1), Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y-1),Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X-1,Y), Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X,Y), Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y), Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X-1,Y+1), Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X,Y+1), Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y+1),Ret=1,!.
+isSurroundPlayer(X,Y,Ret) :- Ret = 0.
 
 
+deadAllEnemy:- findall(1,(benda('E',_,X,Y),deadEnemy(X,Y)),_).
+deadEnemy(X,Y):- \+isInside(X,Y),retract(benda('E',_,X,Y)).
 
-moveList(X,Y) :- X = 1, Y is 'n',!.
-moveList(X,Y) :- X = 2, Y is 'e',!.
-moveList(X,Y) :- X = 3, Y is 's',!.
-moveList(X,Y) :- X = 4, Y is 'w',!.
+resolveAllEnemy:- findall(1,(benda('E',_,X,Y),resolveEnemy(X,Y)),_). 
+resolveEnemy(X,Y):- benda('E',Weapon,X,Y),retractall(benda('E',_,X,Y)),asserta(benda('E',Weapon,X,Y)).
+
+/*ATTACK ENEMY*/
+attack :- locX(CurrX),locY(CurrY),enemyAttack,!,\+pWeapon(none),isCurrAmmoAvaiable,delCurrAmmo(1),
+          benda('E',Weapon,CurrX,CurrY),retract(benda('E',_,CurrX,CurrY)),asserta(benda('W',Weapon,CurrX,CurrY)), write('You killed an enemy.').
+
+enemyAttack:- locX(CurrX),locY(CurrY),benda('E',Weapon,CurrX,CurrY),damage(Weapon,Hit),
+            pArmor(Armor),Armor>=Hit,!,retract(pArmor(_)),NewArmor is Armor-Hit,asserta(pArmor(NewArmor)),
+            format('You have been attacked by %s and your armor has received %d damage. ',[Weapon,Hit]).
+enemyAttack:- locX(CurrX),locY(CurrY),benda('E',Weapon,CurrX,CurrY),damage(Weapon,Hit),
+            pArmor(Armor),Armor<Hit,!,pHealth(HP),retract(pHealth(_)),retract(pArmor(_)),
+            SisaAttack is Hit-Armor,asserta(pArmor(0)),
+            NewHP is HP-SisaAttack,asserta(pHealth(NewHP)).
+            format('You have been attacked by %s, your armor has gone, and your health is reduced by %d. ',[Weapon,SisaAttack]).      
+enemyAttack:- locX(CurrX),locY(CurrY),benda('E',Weapon,CurrX,CurrY),damage(Weapon,Hit),
+            pHealth(HP),retract(pHealth(_)),NewHP is HP-Hit,asserta(pHealth(NewHP)),format('You have been attacked by %s, you were shot directly without using armor and received %d damage. ',[Weapon,SisaAttack]).

@@ -1,13 +1,15 @@
 /*FAKTA*/
 
 /* MAXIMUM */
-maxHealth(100).
-maxInventori(10).
-maxWeapon(50).
-maxMagazine(50).
-maxArmor(50).
-maxMedicine(50).
+maxpHealth(100).
+maxpArmor(100).
+maxWeapon(100).
+maxMagazine(100).
+maxArmor(100).
+maxMedicine(100).
 maxEnemy(9).
+maxAmmoPack(10).
+maxBag(10).
 
 /*WEAP0ON*/
 weapon(deagle).
@@ -47,12 +49,12 @@ armor(helmetlv2).
 armor(helmetlv3).
 
 /*ARMORHEALTH*/
-armorhealth(armorlv1,10).
-armorhealth(armorlv2,25).
-armorhealth(armorlv3,50).
-armorhealth(helmetlv1,10).
-armorhealth(helmetlv2,25).
-armorhealth(helmetlv3,50).
+armorHealth(armorlv1,10).
+armorHealth(armorlv2,25).
+armorHealth(armorlv3,50).
+armorHealth(helmetlv1,10).
+armorHealth(helmetlv2,25).
+armorHealth(helmetlv3,50).
 
 /*MEDICINE*/
 medicine(bandage).
@@ -63,3 +65,27 @@ medicine(firstaidkit).
 recover(bandage,20).
 recover(medkit,50).
 recover(firstaidkit,90).
+
+/*BAG*/
+bag(baglv1,5).
+bag(baglv2,8).
+bag(baglv3,10).
+
+/*TILE*/
+terrainLabel(a,'ITB').
+terrainLabel(b,'open field').
+terrainLabel(c,'garden').
+terrainLabel(d,'anex').
+
+/*SIGN*/
+sign(Object,'W') :- weapon(Object).
+sign(Object,'A') :- armor(Object).
+sign(Object,'M') :- medicine(Object).
+sign(Object,'O') :- magazine(Object,_).
+sign(Object,'B') :- bag(Object,_).
+
+/*RANDOM*/
+dropChance(10).
+resizeChance(50).
+dropRandomBase(5).
+dropRandomMax(9).
