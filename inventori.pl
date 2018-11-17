@@ -14,7 +14,7 @@ canAddAmmo(Count) :- maxInventori(Max),
                      inventoriObjCount(InvCount),
                      pInventoriAmmo(CurrAmmo), 
                      maxAmmoPack(MaxAmmo),
-                     AmmoSpace is ceiling(CurrAmmo / MaxAmmo), 
+                     AmmoSpace is ceiling((CurrAmmo+Count) / MaxAmmo), 
                      Total is AmmoSpace+InvCount, 
                      Total<Max.
 
@@ -69,14 +69,14 @@ take(Object) :- magazine(Object,Count),
                 retract(benda(_,Object,CurrX,CurrY)),
                 addAmmo(Count),
                 printTake(Object),!. 
-take(Object) :- \+magazine(Object,_), 
+take(Object) :- \+magazine(Object,_), weapon(Object),armor(Object),medicine(Object),
                 \+canTake(Object),!,write('Inventory full.').
 take(Object) :- locX(CurrX),locY(CurrY),
                 retract(benda(_,Object,CurrX,CurrY)),
                 addInventori(Object),
                 printTake(Object).
 
-printTake(Object) :- write('You took '),write(Object).
+printTake(Object) :- format('You took %s.',[Object]).
 
 /* Kelompok USE */
 use(Object) :- pInventori(Object), weapon(Object), pWeapon(none), 
@@ -84,14 +84,14 @@ use(Object) :- pInventori(Object), weapon(Object), pWeapon(none),
                assertz(pWeapon(Object)),printUseGun(Object),!.
 use(Object) :- pInventori(Object), weapon(Object), pWeapon(CurrWeapon),
                retract(pWeapon(CurrWeapon)), assertz(pWeapon(Object)),
-               delInventori(Object),addInventori(CurrWeapon),printUseGun(Object),
-               pCurrAmmo(CA),delCurrAmmo(CA).
+               delInventori(Object),addInventori(CurrWeapon),
+               pCurrAmmo(CA),delCurrAmmo(CA),printUseGun(Object).
 
 use(Object) :- pInventori(Object), medicine(Object), recover(Object,HP),pHealth(CurrHP),NewHP is CurrHP + HP,maxpHealth(MH), NewHP > MH, !, retract(pHealth(_)),assertz(pHealth(MH)),delInventori(Object),printUseMedicine(Object).
 use(Object) :- pInventori(Object), medicine(Object), recover(Object,HP),pHealth(CurrHP),NewHP is CurrHP + HP,maxpHealth(MH), NewHP =< MH, retract(pHealth(_)),assertz(pHealth(NewHP)),delInventori(Object),printUseMedicine(Object).
 
 use(Object) :- pInventori(Object), armor(Object), armorHealth(Object,HP),pArmor(CurrArmor),NewArmor is HP + CurrArmor,maxpArmor(MaxArmor),
-                NewArmor > MaxArmor,!,retract(pArmor(_)),assertz(pArmor(MaxArmor)),delInventori(Object),write('Your armor is full.').
+                NewArmor > MaxArmor,!,retract(pArmor(_)),assertz(pArmor(MaxArmor)),delInventori(Object),printUseArmor(Object).
 use(Object) :- pInventori(Object), armor(Object), armorHealth(Object,HP),pArmor(CurrArmor),NewArmor is HP + CurrArmor,maxpArmor(MaxArmor),
                 NewArmor=<MaxArmor,retract(pArmor(_)),assertz(pArmor(NewArmor)),delInventori(Object),printUseArmor(Object).
 

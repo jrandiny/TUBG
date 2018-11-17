@@ -66,7 +66,8 @@ execute(drop(X)):- drop(X).
 execute(attack) :- attack.
 execute(save(X)) :- saveAll(X),write('Game saved.').
 execute(load(X)) :- loadAll(X),write('Game loaded.').
-execute(list) :- findall(1,(benda('E',_,X,Y),write(X),write(' '),write(Y),nl),_).
+% execute(list) :- findall(1,(benda('E',_,X,Y),write(X),write(' '),write(Y),nl),_).
+execute(enemy):- printEnemyMap(1,1).
 
 enemyDo :- enemyAttack,!.
 enemyDo.
@@ -80,7 +81,8 @@ loseGame:- locX(X),locY(Y),\+isInside(X,Y),write('The deadzone catches you!'),!.
 randomDrop:- dropChance(X),real_time(Time),Chance is Time mod X, Chance =:= 0,
             random(1,5,Random),
             dropRandomBase(Base),dropRandomMax(Max),random(Base,Max,RandomCount),
-            dropRandomObject(Random,RandomCount),!.
+            dropRandomObject(Random,RandomCount),
+            write('\n\nThere is a new drop on the map!'),!.
 randomDrop.
 
 dropRandomObject(1,Count):- findall(Object,weapon(Object),Bag),
