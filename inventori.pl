@@ -1,22 +1,41 @@
+/* KELOMPOK INVENTORI */
 inventoriObjCount(Count) :- pInventori(none),Count = 0.
 inventoriObjCount(Count) :- findall(1,pInventori(_),_L),length(_L,Count).
 
-inventoriCount(Count) :- inventoriObjCount(ObjCount),pInventoriAmmo(AmmoCount), maxAmmoPack(MaxAmmo),AmmoSpace is ceiling(AmmoCount / MaxAmmo), Count is AmmoSpace + ObjCount.
+inventoriCount(Count) :- inventoriObjCount(ObjCount),
+                         pInventoriAmmo(AmmoCount), 
+                         maxAmmoPack(MaxAmmo),
+                         AmmoSpace is ceiling(AmmoCount / MaxAmmo),
+                         Count is AmmoSpace + ObjCount.
 
-canPutInventori :- maxInventori(Max),inventoriCount(Count),Count<Max.
+canPutInventori :- maxInventori(Max),inventoriCount(Count),Count=<Max.
 
-canTake(Object) :- canPutInventori,locX(CurrX),locY(CurrY),benda(Sign,Object,CurrX,CurrY),Sign \== 'E'.
+canTake(Object) :- canPutInventori,
+                   locX(CurrX),locY(CurrY),
+                   benda(Sign,Object,CurrX,CurrY).
 
-addInventori(Object) :- pInventori(none),!,retract(pInventori(none)),assertz(pInventori(Object)).
+addInventori(Object) :- pInventori(none),!,
+                        retract(pInventori(none)),
+                        assertz(pInventori(Object)).
 addInventori(Object) :- canPutInventori, assertz(pInventori(Object)).
 
+delInventori(Object) :- inventoriObjCount(Count),
+                        Count =:= 1,!,
+                        pInventori(Object),
+                        retract(pInventori(Object)),
+                        assertz(pInventori(none)).
+
+delInventori(Object) :- pInventori(Object),
+                        retract(pInventori(Object)).
+
+/* KELOMPOK AMMO MANAGEMENT */
 canAddAmmo(Count) :- maxInventori(Max),
                      inventoriObjCount(InvCount),
                      pInventoriAmmo(CurrAmmo), 
                      maxAmmoPack(MaxAmmo),
                      AmmoSpace is ceiling((CurrAmmo+Count) / MaxAmmo), 
                      Total is AmmoSpace+InvCount, 
-                     Total<Max.
+                     Total=<Max.
 
 addAmmo(Count) :- canAddAmmo(Count),
                   pInventoriAmmo(AmmoCount),
@@ -42,15 +61,8 @@ delCurrAmmo(Count) :- pCurrAmmo(CurrAmmo),
 isCurrAmmoAvaiable :- pCurrAmmo(CurrAmmo),
                       CurrAmmo >0.
 
-delInventori(Object) :- inventoriObjCount(Count),
-                        Count =:= 1,!,
-                        pInventori(Object),
-                        retract(pInventori(Object)),
-                        assertz(pInventori(none)).
 
-delInventori(Object) :- pInventori(Object),
-                        retract(pInventori(Object)).
-
+/* KELOMPOK TAKE */
 take(Object) :- bag(Object,MaxBag),
                 maxInventori(MaxInventori),
                 MaxBag<MaxInventori,!,
@@ -63,7 +75,7 @@ take(Object) :- bag(Object,MaxBag),
                 retract(maxInventori(_)),
                 asserta(maxInventori(MaxBag)), 
                 format('You take and equip %s.', [Object]).
-take(Object) :- magazine(Object,Count),
+take(Object) :- magazine(Object,Count),!,
                 canAddAmmo(Count),
                 locX(CurrX),locY(CurrY),
                 retract(benda(_,Object,CurrX,CurrY)),
@@ -78,6 +90,16 @@ take(Object) :- locX(CurrX),locY(CurrY),
 
 printTake(Object) :- format('You took %s.',[Object]).
 
+/* KELOMPOK HELPER USE */
+evalMedicine(Object,Evaluated) :- pInventori(Object), 
+                        recover(Object,HP),
+                        pHealth(CurrHP),
+                        NewHP is CurrHP + HP,
+                        maxpHealth(MH), 
+                        NewHP =< MH,
+                        Evaluated is NewHP, !.
+evalMedicine(_,Evaluated) :- maxpHealth(MH),Evaluated is MH.
+
 /* Kelompok USE */
 use(Object) :- pInventori(Object), weapon(Object), pWeapon(none), 
                retract(pWeapon(none)),delInventori(Object), 
@@ -87,8 +109,12 @@ use(Object) :- pInventori(Object), weapon(Object), pWeapon(CurrWeapon),
                delInventori(Object),addInventori(CurrWeapon),
                pCurrAmmo(CA),delCurrAmmo(CA),printUseGun(Object).
 
-use(Object) :- pInventori(Object), medicine(Object), recover(Object,HP),pHealth(CurrHP),NewHP is CurrHP + HP,maxpHealth(MH), NewHP > MH, !, retract(pHealth(_)),assertz(pHealth(MH)),delInventori(Object),printUseMedicine(Object).
-use(Object) :- pInventori(Object), medicine(Object), recover(Object,HP),pHealth(CurrHP),NewHP is CurrHP + HP,maxpHealth(MH), NewHP =< MH, retract(pHealth(_)),assertz(pHealth(NewHP)),delInventori(Object),printUseMedicine(Object).
+use(Object) :- medicine(Object),
+               evalMedicine(Object,Res),
+               retract(pHealth(_)),
+               assertz(pHealth(Res)),
+               delInventori(Object),
+               printUseMedicine(Object).
 
 use(Object) :- pInventori(Object), armor(Object), armorHealth(Object,HP),pArmor(CurrArmor),NewArmor is HP + CurrArmor,maxpArmor(MaxArmor),
                 NewArmor > MaxArmor,!,retract(pArmor(_)),assertz(pArmor(MaxArmor)),delInventori(Object),printUseArmor(Object).
@@ -99,7 +125,7 @@ use(ammo) :- pWeapon(CurrWeapon),
              CurrWeapon == none,write('No weapon.'),!.
 use(ammo) :- pInventoriAmmo(InvAmmo), 
              pWeapon(Weapon),
-             pCurrAmmo(CurrAmmo),
+             pCurrAmmo(CurrAmmo),   
              ammoMax(Weapon,MA),
              Selisih is MA - CurrAmmo,
              Sisa is InvAmmo - Selisih,
@@ -116,6 +142,7 @@ printUseMedicine(Object) :- write(Object), write(' is used. ').
 printAmmoCount:- pCurrAmmo(Count),Count =:= 0, write('But the gun\'s empty, mate.'),!.
 printAmmoCount:- pCurrAmmo(Count), format('with %d ammo left.',[Count]).
 
+/* KELOMPOK DROP */
 drop(Object) :- pWeapon(Object), retract(pWeapon(Object)),pCurrAmmo(CA),delCurrAmmo(CA),asserta(pWeapon(none)), locX(CurrX),locY(CurrY), asserta(benda('W',Object,CurrX,CurrY)),printDrop(Object),!.
 drop(Object) :- pInventori(Object),locX(CurrX),locY(CurrY), delInventori(Object), sign(Object,Sign),asserta(benda(Sign,Object,CurrX,CurrY)),printDrop(Object).
 

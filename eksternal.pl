@@ -1,3 +1,4 @@
+/* KELOMPOK SAVE */
 saveLoc(Stream) :-
     locX(X),locY(Y),format(Stream,'locX(%d).',[X]),nl(Stream),format(Stream,'locY(%d).',[Y]),nl(Stream).
 
@@ -25,17 +26,22 @@ savePlayer(Stream) :-
 
 saveMaxInventori(Stream) :-
     maxInventori(Max),format(Stream,'maxInventori(%d).',[Max]),nl(Stream).
-    
+
+saveEnemy(Stream) :-
+    enemy(A,B,C,D,E),format(Stream,'enemy(\'%s\',%s,%d,%d,%d).',[A,B,C,D,E]),nl(Stream),fail
+    ;true.
+
 saveAll(NamaFile) :- open(NamaFile,write,Stream),
            (
-               saveLoc(Stream),savePetaSize(Stream),saveBenda(Stream),savePeta(Stream),saveInventori(Stream),savePlayer(Stream),saveMaxInventori(Stream)
+               saveLoc(Stream),savePetaSize(Stream),saveBenda(Stream),savePeta(Stream),saveInventori(Stream),savePlayer(Stream),saveMaxInventori(Stream),saveEnemy(Stream)
            ),
            close(Stream).
 
+/* KELOMPOK LOAD */
 removeAll :-
     retractall(locX(_)),retractall(locY(_)),retractall(petaSize(_)),retractall(peta(_)),retractall(benda(_,_,_,_)),
     retractall(pHealth(_)),retractall(pArmor(_)),retractall(pWeapon(_)),retractall(pInventoriAmmo(_)),retractall(pCurrAmmo(_)),
-    retractall(pInventori(_)).
+    retractall(pInventori(_)),retractall(enemy(_,_,_,_,_)).
 
 readAll(Stream) :- at_end_of_stream(Stream).
 readAll(Stream) :- \+(at_end_of_stream(Stream)),

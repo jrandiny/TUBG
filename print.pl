@@ -2,68 +2,65 @@
 printXHoriz(0):-nl.
 printXHoriz(Count):-write('X'),NextCount is Count -1, printXHoriz(NextCount).
 
-printMap(_,Y):- Y>12,!.
-printMap(_,Y):- getTopLeft(_,YPojok),Y<YPojok,printXHoriz(34),!,printMap(1, Y+1).
-printMap(_,Y):- getBottomRight(_,YBawah), Y>YBawah,printXHoriz(34),!,printMap(1,Y+1).
-printMap(X,Y):- X>12,nl,!,printMap(1,Y+1).
-printMap(X,Y):- isInside(X,Y),locX(XPlayer),locY(YPlayer),X=:=XPlayer,Y=:=YPlayer,write(' P '),!,printMap(X+1,Y).
-% printMap(X,Y):- isInside(X,Y),findall(1,(benda('E',_,CurrX,CurrY),CurrX=:=X,CurrY=:=Y),Bag),length(Bag,ListEnemy),ListEnemy>0,write(' E '),!,printMap(X+1,Y).
-printMap(X,Y):- isInside(X,Y),write(' - '),!,printMap(X+1,Y).
+printMap(_,Y):- maxMapSize(MaxSize),Y>MaxSize,!.
+printMap(_,Y):- maxMapSize(MaxSize),
+                getTopLeft(_,YPojok),
+                Y<YPojok,
+                printXHoriz((MaxSize*3 )-2),!,
+                printMap(1, Y+1).
+printMap(_,Y):- maxMapSize(MaxSize),
+                getBottomRight(_,YBawah),
+                Y>YBawah,printXHoriz((MaxSize *3)-2),!,
+                printMap(1,Y+1).
+printMap(X,Y):- maxMapSize(MaxSize),
+                X>MaxSize,nl,!,
+                printMap(1,Y+1).
+printMap(X,Y):- isInside(X,Y),
+                locX(XPlayer),locY(YPlayer),
+                X=:=XPlayer,Y=:=YPlayer,
+                write(' P '),!,
+                printMap(X+1,Y).
+printMap(X,Y):- isInside(X,Y),write(' - '),!,
+                printMap(X+1,Y).
 printMap(X,Y):- X=1,write('X '),!,printMap(X+1,Y).
 printMap(X,Y):- write(' X '),!,printMap(X+1,Y).
 
-printEnemyMap(_,Y):- Y>12,!.
-printEnemyMap(_,Y):- getTopLeft(_,YPojok),Y<YPojok,printXHoriz(34),!,printEnemyMap(1, Y+1).
-printEnemyMap(_,Y):- getBottomRight(_,YBawah), Y>YBawah,printXHoriz(34),!,printEnemyMap(1,Y+1).
-printEnemyMap(X,Y):- X>12,nl,!,printEnemyMap(1,Y+1).
+printEnemyMap(_,Y):- maxMapSize(MaxSize),Y>MaxSize,!.
+printEnemyMap(_,Y):- maxMapSize(MaxSize),
+                     getTopLeft(_,YPojok),
+                     Y<YPojok,
+                     printXHoriz((MaxSize*3 )-2),!,
+                     printEnemyMap(1, Y+1).
+printEnemyMap(_,Y):- maxMapSize(MaxSize),
+                     getBottomRight(_,YBawah),
+                     Y>YBawah,printXHoriz((MaxSize*3 )-2),!,
+                     printEnemyMap(1,Y+1).
+printEnemyMap(X,Y):- maxMapSize(MaxSize),
+                     X>MaxSize,nl,!,
+                     printEnemyMap(1,Y+1).
 printEnemyMap(X,Y):- isInside(X,Y),locX(XPlayer),locY(YPlayer),X=:=XPlayer,Y=:=YPlayer,write(' P '),!,printEnemyMap(X+1,Y).
-printEnemyMap(X,Y):- isInside(X,Y),findall(1,(benda('E',_,CurrX,CurrY),CurrX=:=X,CurrY=:=Y),Bag),length(Bag,ListEnemy),ListEnemy>0,write(' E '),!,printEnemyMap(X+1,Y).
+printEnemyMap(X,Y):- isInside(X,Y),findall(1,(enemy('E',_,CurrX,CurrY,_),CurrX=:=X,CurrY=:=Y),Bag),length(Bag,ListEnemy),ListEnemy>0,write(' E '),!,printEnemyMap(X+1,Y).
 printEnemyMap(X,Y):- isInside(X,Y),write(' - '),!,printEnemyMap(X+1,Y).
 printEnemyMap(X,Y):- X=1,write('X '),!,printEnemyMap(X+1,Y).
 printEnemyMap(X,Y):- write(' X '),!,printEnemyMap(X+1,Y).
 
 /* objek('W',Nama,LocX,LocY)*/
 printlook(X,Y) :- \+(isInside(X,Y)), write(' X '),!.
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='E',format(' %s ',[Simbol]),!.
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='M',format(' %s ',[Simbol]),!.
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='W',format(' %s ',[Simbol]),!.
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='A',format(' %s ',[Simbol]),!.
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='O',format(' %s ',[Simbol]),!.
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y, Simbol='B',format(' %s ',[Simbol]),!.
-printlook(X,Y) :- locX(LocX), locY(LocY), LocX =:= X, LocY =:= Y, Simbol='P',format(' %s ',[Simbol]),!.
+printlook(X,Y) :- enemy(_,_,LocX,LocY,_), LocX =:= X, LocY =:= Y,write(' E '),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y,format(' %s ',[Simbol]),!.
+printlook(X,Y) :- locX(LocX), locY(LocY), LocX =:= X, LocY =:= Y,write(' P '),!.
 printlook(_,_) :- write(' - '),!.
  
 surround(X,Y) :- printlook(X-1,Y-1),printlook(X,Y-1),printlook(X+1,Y-1),nl,
                  printlook(X-1,Y),printlook(X,Y),printlook(X+1,Y),nl,
                  printlook(X-1,Y+1),printlook(X,Y+1),printlook(X+1,Y+1).
 
-/*
-Look ​ /0 ​ : menuliskan petak-petak 3x3 di sekitar pemain dengan posisi pemain saat ini
-menjadi center. Dalam petak-petak tersebut tampilkan simbol untuk objek yang ada di
-petak tersebut. Skala prioritas penampilan peta: Enemy > Medicine > Weapon > Armor
-> Ammo > pemain. Jika ada lebih dari satu objek pada petak tersebut, tampilkan yang
-memiliki prioritas tertinggi. Khusus untuk petak posisi pemain saat ini, berikan deskripsi
-mengenai objek yang ada pada petak tersebut. Contoh dapat dilihat pada bagian E.
-
-> look.
-You are in the desert. You see a bandage. You see a pistol. You see pack of
-magazines.
-X _ _
-X W _
-X _ _
-
-*/
 look :- locX(X),locY(Y),printAllObject,nl,surround(X,Y).
 printAllObject :- findall(1,(locX(X),locY(Y),printObject(X,Y)),_).
-printObject(X,Y) :- benda(Sign,_,X,Y),Sign == 'E', write('You see an enemy. ').
+printObject(X,Y) :- enemy(_,_,X,Y,_), write('You see an enemy. ').
 printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'W', format('You see an empty %s',[ObjName]),write(' lying on the grass. ').
-printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign \== 'E',Sign \== 'W', format('You see a %s. ',[ObjName]).
+printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign \== 'W', format('You see a %s. ',[ObjName]).
 printObject(X,Y) :- \+(benda(_,_,X,Y)),write('There is nothing in your place.').
-
-/*
-deadAllEnemy:- findall(1,(benda('E',_,X,Y),deadEnemy(X,Y)),_).
-deadEnemy(X,Y):- \+isInside(X,Y),retract(benda('E',_,X,Y)).
-*/
 
 status:- write('Health: '),
         pHealth(Health),
@@ -88,8 +85,14 @@ tulisAmmo(Count) :- Count=\=0, maxAmmoPack(MaxAmmo),Count >MaxAmmo, format('\n  
 tulisAmmo(Count) :- Count=\=0, format('\n   Pack of ammo (%d)',[Count]).
 tulisAmmo(0).
 
-tulisInventori([H]) :- H = none,pInventoriAmmo(Ammo),Ammo =:=0,!,write('Your inventory is empty!').
-tulisInventori([H]) :- write('Inventory: '),pInventoriAmmo(Ammo),tulisAmmo(Ammo),H==none,!.
+tulisInventori([H]) :- H = none,
+                       pInventoriAmmo(Ammo),
+                       Ammo =:=0,!,
+                       write('Your inventory is empty!').
+tulisInventori([H]) :- write('Inventory: '),
+                       pInventoriAmmo(Ammo),
+                       tulisAmmo(Ammo),
+                       H==none,!.
 tulisInventori([H]) :- nl,write('   '),write(H).
 tulisInventori([H|T]) :- tulisInventori(T),nl,write('   '),write(H),!.
 
@@ -114,7 +117,7 @@ printMoveSouth(X,Y):- locX(X),locY(Y),
 printMoveWest(X,Y):- locX(X),locY(Y),
                      terrainXY(X-1,Y,Terrain),
                      format('To the west is %s.',[Terrain]).                                                                        
-printMoveEnemy(X,Y):- benda('E',_,X,Y),write('You encounter an enemy! Kill or be killed! ').
+printMoveEnemy(X,Y):- enemy('E',_,X,Y,_),write('You encounter an enemy! Kill or be killed! ').
 printMoveEnemy(_,_).
 
 

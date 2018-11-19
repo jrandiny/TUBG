@@ -3,13 +3,15 @@
 /* MAXIMUM */
 maxpHealth(100).
 maxpArmor(100).
-maxWeapon(15).
-maxMagazine(15).
+maxWeapon(10).
+maxMagazine(10).
 maxArmor(15).
 maxMedicine(15).
 maxEnemy(15).
 maxAmmoPack(10).
 maxBag(10).
+maxMapSize(12).
+maxEHealth(100).
 
 /*WEAP0ON*/
 weapon(deagle).
@@ -33,7 +35,7 @@ damage(ak47,25).
 damage(m4a1,20).
 damage(shotgun,45).
 damage(uzi,15).
-damage(awp,100).
+damage(awp,60).
 
 /*MAGAZINE*/
 magazine(magazinelv1,5).
@@ -57,14 +59,14 @@ armorHealth(helmetlv2,25).
 armorHealth(helmetlv3,50).
 
 /*MEDICINE*/
-medicine(bandage).
-medicine(medkit).
-medicine(firstaidkit).
+medicine(tolakangin).
+medicine(madurasa).
+medicine(airminum600ml).
 
 /*RECOVER*/
-recover(bandage,20).
-recover(medkit,50).
-recover(firstaidkit,90).
+recover(tolakangin,20).
+recover(madurasa,50).
+recover(airminum600ml,90).
 
 /*BAG*/
 bag(baglv1,5).
@@ -76,6 +78,7 @@ terrainLabel(a,'ITB').
 terrainLabel(b,'open field').
 terrainLabel(c,'garden').
 terrainLabel(d,'anex').
+terrainLabel(k,'kantin engi').
 
 /*SIGN*/
 sign(Object,'W') :- weapon(Object).
