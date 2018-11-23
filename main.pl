@@ -43,7 +43,7 @@ makeTileXY(X,Y) :- isInside(X,Y),getRandomTile(Tile), assertz(tempGenTile(Tile))
 makeTileXY(_,_) :- assertz(tempGenTile(x)).
  /* rule membuat tile sebanyak kolom peta */
 generateRow(X,Y) :- maxMapSize(Max),X=<Max,makeTileXY(X,Y),Z is X+1,generateRow(Z,Y).
-generateRow(X,Y) :- maxMapSize(Max),X>Max.
+generateRow(X,_) :- maxMapSize(Max),X>Max.
 /* rule membuat baris sebanyak maxMapSize pada peta */
 generateMap(X,Y) :- maxMapSize(Max),
                     Y=<Max,generateRow(1,Y),
@@ -51,10 +51,11 @@ generateMap(X,Y) :- maxMapSize(Max),
                     retractall(tempGenTile(_)),
                     assertz(tempGenRow(List)),
                     Z is Y+1,generateMap(X,Z).
-generateMap(X,Y) :- maxMapSize(Max),Y>Max.
-
+generateMap(_,Y) :- maxMapSize(Max),Y>Max.
+/* rule untuk membuat peta */
 collectMap(Map) :- generateMap(1,1),findall(Row,tempGenRow(Row),Map),retractall(tempGenRow(_)).
 
+/* rule untuk memulai permainan */
 start :- setupGame,
          printWelcome,nl,
          repeat,
@@ -63,16 +64,16 @@ start :- setupGame,
             \+((\+(execute(Ans)),write('Command invalid.\n\n'))),nl,nl,
             (Ans == quit; loseGame ; winGame),!.
 
-
+/* RULES EXECUTEABLE */
 execute(quit):- write('You quit the game.').
 execute(look) :- look.
 execute(help) :- printHelp.
 execute(status):- status.
 execute(map) :- printMap(1,1).
-execute(n) :- enemyDo, move(n),routineCheck.
-execute(w) :- enemyDo, move(w),routineCheck.
-execute(e) :- enemyDo, move(e),routineCheck.
-execute(s) :- enemyDo, move(s),routineCheck.
+execute(n) :- enemyAttack, move(n),routineCheck.
+execute(w) :- enemyAttack, move(w),routineCheck.
+execute(e) :- enemyAttack, move(e),routineCheck.
+execute(s) :- enemyAttack, move(s),routineCheck.
 execute(take(X)) :- take(X).
 execute(use(X)):- use(X).
 execute(drop(X)):- drop(X).
@@ -84,15 +85,15 @@ execute(X) :- debug(X).
 
 debug(dummy).
 
-enemyDo :- enemyAttack,!.
-enemyDo.
-
+/* predikat yang dicek setiap kali jalan */
 routineCheck :- resize,randomDrop,deadAllEnemy,resolveAllEnemy,moveAllEnemy.
 
+/* predikat yang menyatakan saat menang */
 winGame:- findall(1,(enemy(_,_,_,_,_)),Bag),
           length(Bag,JumlahE),
           JumlahE=:=0,
           write('WINNER-WINNER\nCHICKEN DINNER!\n').
+/* predikat yang menyatakan saat kalah */
 loseGame:- pHealth(Health),
            Health =<  0,
            write('WASTED').
@@ -100,6 +101,7 @@ loseGame:- locX(X),locY(Y),
            \+isInside(X,Y),
            write('The deadzone catches you!'),!.
 
+/* rule untuk melakukan random drop pada peta */
 randomDrop:- dropChance(X),
              real_time(Time),
              Chance is Time mod X, 
@@ -109,25 +111,23 @@ randomDrop:- dropChance(X),
              dropRandomObject(Random,RandomCount),
              write('\n\nThere is a new drop on the map!'),!.
 randomDrop.
-
+/* drop weapon */
 dropRandomObject(1,Count):- findall(Object,weapon(Object),Bag),
                             while_randomObject(Bag,Count,'W').
-
+/* drop medicine */
 dropRandomObject(2,Count):- findall(Object,medicine(Object),Bag),
                             while_randomObject(Bag,Count,'M').
-
+/* drop armor */
 dropRandomObject(3,Count):- findall(Object,armor(Object),Bag),
                             while_randomObject(Bag,Count,'A').
-
+/* drop magazine */
 dropRandomObject(4,Count):- findall(Object,magazine(Object,_),Bag),
                             while_randomObject(Bag,Count,'O').
-
+/* drop bag */
 dropRandomObject(5,Count):- findall(Object,bag(Object,_),Bag),
                             while_randomObject(Bag,Count,'B').
 
-
-                                                        
-/* objek('W',Nama,LocX,LocY) */
+/* rule untuk melakukan random setup lokasi benda-benda saat awal permainan */
 setupRandomObject:- maxWeapon(MaxW),
                     dropRandomObject(1,MaxW),                    
                     maxMedicine(MaxM),
@@ -140,7 +140,7 @@ setupRandomObject:- maxWeapon(MaxW),
                     dropRandomObject(5,MaxB),
                     maxEnemy(MaxE),
                     spawnRandomEnemy(MaxE).
-
+/* setup objek yang loopin, diulang sebanyak N kali */
 while_randomObject(_,0,_).
 while_randomObject(L,N,Sign):- N > 0,
                             getTopLeft(X1,Y1),

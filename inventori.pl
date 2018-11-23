@@ -26,7 +26,7 @@ canPutInventori(ammo,Count)   :- maxInventori(Max),
 /* predikat yang menyatakan apakah kita dapat menjalankan take */
 canTake(Object) :- canPutInventori(object),
                    locX(CurrX),locY(CurrY),
-                   benda(Sign,Object,CurrX,CurrY).
+                   benda(_,Object,CurrX,CurrY).
 
 /* rule untuk menambahkan suatu objek ke inventori */
 addInventori(Object) :- pInventori(none),!,
