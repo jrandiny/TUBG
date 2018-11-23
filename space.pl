@@ -1,5 +1,4 @@
-/*RULES*/
-
+/*RULES VALIDASI POSISI*/
 getTopLeft(X,Y):-   maxMapSize(MaxSize),
                     petaSize(Z),
                     X is ((MaxSize-Z)//2)+1,
@@ -13,6 +12,7 @@ isInside(X,Y) :- getTopLeft(PosXA,PosYA),
                  X >= PosXA,Y >= PosYA, 
                  X =< PosXB, Y =< PosYB,!.
 
+/* rules yang menyatakan player dapat move atau tidak */
 canMove(Direction) :- Direction == n, locX(X), locY(Y), isInside(X,Y-1).
 canMove(Direction) :- Direction == e, locX(X), locY(Y), isInside(X+1,Y).
 canMove(Direction) :- Direction == s, locX(X), locY(Y), isInside(X,Y+1).
@@ -55,6 +55,7 @@ resize:- resizeChance(X),
          write('\n\nThe map has shrink!').
 resize.
 
+/* rule mengambil nama tile sekarang berdasarkan peta */
 terrainXY(X,Y,Terrain):- isInside(X,Y),
                          peta(Peta),
                          EvalY is Y,EvalX is X,

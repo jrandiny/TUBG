@@ -1,7 +1,9 @@
-/* RULES */
+/* RULES PRINT PETA*/
+/* menampilak sebaris X */
 printXHoriz(0):-nl.
 printXHoriz(Count):-write('X'),NextCount is Count -1, printXHoriz(NextCount).
 
+/* menuliskan peta yang sesuai dengan petaSize */
 printMap(_,Y):- maxMapSize(MaxSize),Y>MaxSize,!.
 printMap(_,Y):- maxMapSize(MaxSize),
                 getTopLeft(_,YPojok),
@@ -25,6 +27,7 @@ printMap(X,Y):- isInside(X,Y),write(' - '),!,
 printMap(X,Y):- X=1,write('X '),!,printMap(X+1,Y).
 printMap(X,Y):- write(' X '),!,printMap(X+1,Y).
 
+/* menampilkan peta bersamaan dengan lokasi enemy */
 printEnemyMap(_,Y):- maxMapSize(MaxSize),Y>MaxSize,!.
 printEnemyMap(_,Y):- maxMapSize(MaxSize),
                      getTopLeft(_,YPojok),
@@ -44,28 +47,52 @@ printEnemyMap(X,Y):- isInside(X,Y),write(' - '),!,printEnemyMap(X+1,Y).
 printEnemyMap(X,Y):- X=1,write('X '),!,printEnemyMap(X+1,Y).
 printEnemyMap(X,Y):- write(' X '),!,printEnemyMap(X+1,Y).
 
-/* objek('W',Nama,LocX,LocY)*/
+/* rule untuk hierarki penampilan objek */
 printlook(X,Y) :- \+(isInside(X,Y)), write(' X '),!.
-printlook(X,Y) :- enemy(_,_,X,Y,_),write(' E '),!.
-printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='M',write(' M '),!.
-printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='W',write(' W '),!.
-printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='A',write(' A '),!.
-printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='O',write(' O '),!.
-printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='B',write(' B '),!.
-printlook(X,Y) :- locX(X), locY(Y),write(' P '),!.
+printlook(X,Y) :- enemy(_,_,LocX,LocY,_),
+                  LocX=:=X,LocY=:=Y,
+                  write(' E '),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
+                  LocX=:=X,LocY=:=Y, 
+                  Simbol='M',
+                  write(' M '),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
+                  LocX=:=X,LocY=:=Y, 
+                  Simbol='W',
+                  write(' W '),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
+                  LocX=:=X,LocY=:=Y, 
+                  Simbol='A',
+                  write(' A '),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
+                  LocX=:=X,LocY=:=Y, 
+                  Simbol='O',
+                  write(' O '),!.
+printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
+                  LocX=:=X,LocY=:=Y, 
+                  Simbol='B',
+                  write(' B '),!.
+printlook(X,Y) :- locX(X), locY(Y),
+                  write(' P '),!.
 printlook(_,_) :- write(' - '),!.
- 
+
+/* rule menampilkan keadaan sekitar player */
 surround(X,Y) :- printlook(X-1,Y-1),printlook(X,Y-1),printlook(X+1,Y-1),nl,
                  printlook(X-1,Y),printlook(X,Y),printlook(X+1,Y),nl,
                  printlook(X-1,Y+1),printlook(X,Y+1),printlook(X+1,Y+1).
 
-look :- locX(X),locY(Y),printAllObject,nl,surround(X,Y).
+/* rule yang menjalankan command look */
+look :- locX(X),locY(Y),
+        printAllObject,nl,surround(X,Y).
+
+/* rule untuk menuliskan semua objek-objek yang ada di lokasi pemain */
 printAllObject :- findall(1,(locX(X),locY(Y),printObject(X,Y)),_).
 printObject(X,Y) :- enemy(_,_,X,Y,_), write('You see an enemy. ').
 printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'W', format('You see an empty %s',[ObjName]),write(' lying on the grass. ').
 printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign \== 'W', format('You see a %s. ',[ObjName]).
 printObject(X,Y) :- \+(benda(_,_,X,Y)),write('There is nothing in your place.').
 
+/* rule untuk menampilkan semua status player */
 status:- write('Health: '),
         pHealth(Health),
         write(Health), nl,
@@ -80,15 +107,23 @@ status:- write('Health: '),
         findall(Inventori,pInventori(Inventori),Bag),
         tulisInventori(Bag),!. /*print list*/
 
+/* rule untuk menampilkan ammo jika ada weaponnya */
 printWeapon :- pWeapon(Weapon),write(Weapon),Weapon == none,!.
 printWeapon :- pCurrAmmo(CurrAmmo), CurrAmmo =:= 0, !.
 printWeapon :- pCurrAmmo(CurrAmmo), format('\nAmmo: %d',[CurrAmmo]).
 
-
-tulisAmmo(Count) :- Count=\=0, maxAmmoPack(MaxAmmo),Count >MaxAmmo, format('\n   Pack of ammo (%d)',[MaxAmmo]),NewAmmo is Count - MaxAmmo,!,tulisAmmo(NewAmmo).
-tulisAmmo(Count) :- Count=\=0, format('\n   Pack of ammo (%d)',[Count]).
+/* RULES MENULIS INVENTORI SEKARANG */
+/* tulis ammo sekarang */
+tulisAmmo(Count) :- Count=\=0, 
+                    maxAmmoPack(MaxAmmo),
+                    Count >MaxAmmo,
+                    format('\n   Pack of ammo (%d)',[MaxAmmo]),
+                    NewAmmo is Count - MaxAmmo,!,
+                    tulisAmmo(NewAmmo).
+tulisAmmo(Count) :- Count=\=0,
+                    format('\n   Pack of ammo (%d)',[Count]).
 tulisAmmo(0).
-
+/* tulis inventori sekarang */
 tulisInventori([H]) :- H = none,
                        pInventoriAmmo(Ammo),
                        Ammo =:=0,!,
@@ -98,17 +133,19 @@ tulisInventori([H]) :- write('Inventory: '),
                        tulisAmmo(Ammo),
                        H==none,!.
 tulisInventori([H]) :- nl,write('   '),write(H).
-tulisInventori([H|T]) :- tulisInventori(T),nl,write('   '),write(H),!.
+tulisInventori([H|T]) :- tulisInventori(T),nl,
+                         write('   '),write(H),!.
 
+/* rule yang dipanggil setiap kali move untuk menampilkan terrain di sekitar player */
 printMove:- locX(X),locY(Y),
-                terrainXY(X,Y,TerrainNow),
-                format('You are in %s. ',[TerrainNow]),
-                printMoveEnemy(X,Y),
-                printMoveNorth(X,Y),
-                printMoveEast(X,Y),
-                printMoveSouth(X,Y),
-                printMoveWest(X,Y).
-
+            terrainXY(X,Y,TerrainNow),
+            format('You are in %s. ',[TerrainNow]),
+            printMoveEnemy(X,Y),
+            printMoveNorth(X,Y),
+            printMoveEast(X,Y),
+            printMoveSouth(X,Y),
+            printMoveWest(X,Y).
+/* dafter print sesuai arah */
 printMoveNorth(X,Y):- locX(X),locY(Y),
                       terrainXY(X,Y-1,Terrain),
                       format('To the north is %s. ',[Terrain]).
@@ -121,10 +158,11 @@ printMoveSouth(X,Y):- locX(X),locY(Y),
 printMoveWest(X,Y):- locX(X),locY(Y),
                      terrainXY(X-1,Y,Terrain),
                      format('To the west is %s.',[Terrain]).                                                                        
-printMoveEnemy(X,Y):- enemy('E',_,X,Y,_),write('You encounter an enemy! Kill or be killed! ').
+printMoveEnemy(X,Y):- enemy('E',_,X,Y,_),
+                      write('You encounter an enemy! Kill or be killed! ').
 printMoveEnemy(_,_).
 
-
+/* rule yang menampilkan pesan pembuka */
 printWelcome :- write(' ______  _     _ ______   ______                  _             '),nl,
                 write('(_____ \\| |   | (____  \\ / _____)                | |          '),nl,
                 write(' _____) ) |   | |____)  ) /  ___ ____   ____ ___ | | ___   ____ '),nl,
