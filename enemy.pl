@@ -51,7 +51,7 @@ moveAllEnemy :- findall(1,(enemy('E',_,X,Y,_),
                 moveEnemy(X,Y)),_).
 /* bagian rule yang me-random arah gerakan enemy dan enemy hanya bergerak jika tidak dekat player */
 moveEnemy(X,Y):- random(1,5,Temp),
-                 isSurroundPlayer(X,Y,Ret),Ret=:=0,
+                 \+(isSurroundPlayer(X,Y)),
                  moveList(Temp,Sign),
                  moveE(Sign,X,Y).
 
@@ -65,17 +65,16 @@ moveList(4,w).
 cekP(X,Y) :- locX(XP),locY(YP),
              X =:=XP,Y =:= YP.
 
-/* rule mengecek apakah X,Y ada di sekitar player, Ret = 1 jika ya dan 0 jika tidak */
-isSurroundPlayer(X,Y,Ret) :- cekP(X-1,Y-1), Ret = 1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X,Y-1), Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y-1),Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X-1,Y), Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X,Y), Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y), Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X-1,Y+1), Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X,Y+1), Ret=1,!.
-isSurroundPlayer(X,Y,Ret) :- cekP(X+1,Y+1),Ret=1,!.
-isSurroundPlayer(_,_,0).
+/* rule mengecek apakah X,Y ada di sekitar player */
+isSurroundPlayer(X,Y) :- cekP(X-1,Y-1),!.
+isSurroundPlayer(X,Y) :- cekP(X,Y-1),!.
+isSurroundPlayer(X,Y) :- cekP(X+1,Y-1),!.
+isSurroundPlayer(X,Y) :- cekP(X-1,Y),!.
+isSurroundPlayer(X,Y) :- cekP(X,Y),!.
+isSurroundPlayer(X,Y) :- cekP(X+1,Y),!.
+isSurroundPlayer(X,Y) :- cekP(X-1,Y+1),!.
+isSurroundPlayer(X,Y) :- cekP(X,Y+1),!.
+isSurroundPlayer(X,Y) :- cekP(X+1,Y+1),!.
 
 /* RULES PENGURANGAN ENEMY */
 /* rule untuk mengecek semua enemy mati karena terkena deadzone */
@@ -110,14 +109,15 @@ minEHealth(X,Y,Count) :- enemy('E',Weapon,X,Y,Health),
                          write('You killed an enemy.'),!.
 
 /* rule untuk menyatakan player attack ke enemy */
-attack :- locX(CurrX),locY(CurrY),
-          enemyAttack,!,
-          \+pWeapon(none),
+attack :- \+pWeapon(none),
+          locX(CurrX),locY(CurrY),
+          enemyAttack,
           isCurrAmmoAvaiable,delCurrAmmo(1),
           enemy('E',_,CurrX,CurrY,_),
           pWeapon(Weapon),
           damage(Weapon,Hit),
-          minEHealth(CurrX,CurrY,Hit).
+          minEHealth(CurrX,CurrY,Hit),!.
+attack :- write('You don\'t have any weapon equipted!').
 
 /* rule untuk enemy menyerang player */
 enemyAttack:- locX(CurrX),locY(CurrY),
@@ -144,3 +144,4 @@ enemyAttack:- locX(CurrX),locY(CurrY),
               pHealth(HP),retract(pHealth(_)),
               NewHP is HP-Hit,asserta(pHealth(NewHP)),
               format('You have been attacked by %s, you were shot directly without using armor and received %d damage.\n',[Weapon,Hit]).
+enemyAttack.
