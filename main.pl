@@ -1,4 +1,5 @@
 /* RULES */
+/* rule untuk inisialisasi semua file */
 setupGame:- consult('definition.pl'),
             consult('print.pl'),
             consult('space.pl'),
@@ -11,6 +12,7 @@ setupGame:- consult('definition.pl'),
             setupPemain,
             setupRandomObject.
 
+/* rule untuk inisialisasi pemain */
 setupPemain:-   maxpHealth(Health),
                 asserta(pHealth(Health)),
                 asserta(pArmor(0)),
@@ -25,28 +27,33 @@ setupPemain:-   maxpHealth(Health),
                 random(TopY,BottomY,RandY),
                 asserta(locX(RandX)),
                 asserta(locY(RandY)).
-            
+
+/* rule untuk inisialisasi peta */
 setupPeta:- asserta(petaSize(10)),
             collectMap(Map),
             asserta(peta(Map)).
 
+/* mengembalikan tile random dari daftar terrainLabel */
 getRandomTile(Tile) :- findall(Object,terrainLabel(Object,_),Bag),
                        length(Bag,BagL),Max is BagL+1,
                        random(1,Max,N),nth(N,Bag,Tile).
 
+/* memasukkan tile ke database untuk dibuat peta */
 makeTileXY(X,Y) :- isInside(X,Y),getRandomTile(Tile), assertz(tempGenTile(Tile)),!.
 makeTileXY(_,_) :- assertz(tempGenTile(x)).
- 
+ /* rule membuat tile sebanyak kolom peta */
 generateRow(X,Y) :- maxMapSize(Max),X=<Max,makeTileXY(X,Y),Z is X+1,generateRow(Z,Y).
 generateRow(X,Y) :- maxMapSize(Max),X>Max.
-generateColumn(X,Y) :- maxMapSize(Max),Y=<Max,generateRow(1,Y),makeMapRow,Z is Y+1,generateColumn(X,Z).
-generateColumn(X,Y) :- maxMapSize(Max),Y>Max.
+/* rule membuat baris sebanyak maxMapSize pada peta */
+generateMap(X,Y) :- maxMapSize(Max),
+                    Y=<Max,generateRow(1,Y),
+                    findall(Tile,tempGenTile(Tile),List),
+                    retractall(tempGenTile(_)),
+                    assertz(tempGenRow(List)),
+                    Z is Y+1,generateMap(X,Z).
+generateMap(X,Y) :- maxMapSize(Max),Y>Max.
 
-makeMapRow :- findall(Tile,tempGenTile(Tile),List),
-              retractall(tempGenTile(_)),
-              assertz(tempGenRow(List)).
-
-collectMap(Map) :- generateColumn(1,1),findall(Row,tempGenRow(Row),Map),retractall(tempGenRow(_)).
+collectMap(Map) :- generateMap(1,1),findall(Row,tempGenRow(Row),Map),retractall(tempGenRow(_)).
 
 start :- setupGame,
          printWelcome,nl,
@@ -72,19 +79,10 @@ execute(drop(X)):- drop(X).
 execute(attack) :- attack.
 execute(save(X)) :- saveAll(X),write('Game saved.').
 execute(load(X)) :- loadAll(X),write('Game loaded.').
-execute(enemy):- printEnemyMap(1,1).
-execute(teleport(X,Y)) :- retract(locX(_)),retract(locY(_)),asserta(locX(X)),asserta(locY(Y)).
-execute(oneEnemy):- retractall(enemy(_,_,_,_,_)),spawnRandomEnemy(1).
-execute(trace) :- trace.
-execute(hesoyam):- retract(pHealth(_)),retract(pArmor(_)),asserta(pHealth(100)),asserta(pArmor(100)).
-execute(fullclip):- addCurrAmmo(9999).
-execute(resizeMapTo(X)) :- retract(petaSize(_)),asserta(petaSize(X)).
-execute(botKill):- retractall(enemy(_,_,_,_,_)).
-execute(goodbyeTubes):- retract(pHealth(_)),retract(pArmor(_)),asserta(pHealth(0)),asserta(pArmor(0)),write('You commited suicide.').
-execute(sayaSukaTubes):- write('Anda diamuk massa! Anda kehilangan setengah nyawa anda.'),pHealth(Health),NewHP is Health//2,
-                        retract(pHealth(_)),asserta(pHealth(NewHP)).
-execute(botAdd(X)):- spawnRandomEnemy(X).
-execute(professionalskit):- retract(pWeapon(_)),asserta(pWeapon(awp)).
+execute(loadDebug(X)) :- consult(X).
+execute(X) :- debug(X).
+
+debug(dummy).
 
 enemyDo :- enemyAttack,!.
 enemyDo.

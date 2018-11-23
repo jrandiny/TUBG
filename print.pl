@@ -46,9 +46,13 @@ printEnemyMap(X,Y):- write(' X '),!,printEnemyMap(X+1,Y).
 
 /* objek('W',Nama,LocX,LocY)*/
 printlook(X,Y) :- \+(isInside(X,Y)), write(' X '),!.
-printlook(X,Y) :- enemy(_,_,LocX,LocY,_), LocX =:= X, LocY =:= Y,write(' E '),!.
-printlook(X,Y) :- benda(Simbol,_,LocX,LocY), LocX =:= X, LocY =:= Y,format(' %s ',[Simbol]),!.
-printlook(X,Y) :- locX(LocX), locY(LocY), LocX =:= X, LocY =:= Y,write(' P '),!.
+printlook(X,Y) :- enemy(_,_,X,Y,_),write(' E '),!.
+printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='M',write(' M '),!.
+printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='W',write(' W '),!.
+printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='A',write(' A '),!.
+printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='O',write(' O '),!.
+printlook(X,Y) :- benda(Simbol,_,X,Y), Simbol='B',write(' B '),!.
+printlook(X,Y) :- locX(X), locY(Y),write(' P '),!.
 printlook(_,_) :- write(' - '),!.
  
 surround(X,Y) :- printlook(X-1,Y-1),printlook(X,Y-1),printlook(X+1,Y-1),nl,
