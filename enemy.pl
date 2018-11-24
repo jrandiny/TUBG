@@ -101,12 +101,13 @@ minEHealth(X,Y,Count) :- enemy('E',Weapon,X,Y,Health),
                          NewHealth >0,
                          retract(enemy('E',Weapon,X,Y,Health)),
                          asserta(enemy('E',Weapon,X,Y,NewHealth)),
-                         write('You hit the enemy, but it didn\'t kill them!'),!.
+                         write('Your friend suffer energy loss, but he is still standing!'),!.
 minEHealth(X,Y,Count) :- enemy('E',Weapon,X,Y,Health),
                          NewHealth is Health-Count,
                          NewHealth =<0,
                          retract(enemy('E',Weapon,X,Y,Health)),
-                         write('You killed an enemy.'),!.
+                         assertz(benda('W',Weapon,X,Y)),
+                         write('You successfuly drained your friend\'s energy. He fainted.'),!.
 
 /* rule untuk menyatakan player attack ke enemy */
 attack :- \+pWeapon(none),
@@ -117,7 +118,7 @@ attack :- \+pWeapon(none),
           pWeapon(Weapon),
           damage(Weapon,Hit),
           minEHealth(CurrX,CurrY,Hit),!.
-attack :- write('You don\'t have any weapon equipted!').
+attack :- write('You don\'t have any tubes inspiration!').
 
 /* rule untuk enemy menyerang player */
 enemyAttack:- locX(CurrX),locY(CurrY),
@@ -127,7 +128,7 @@ enemyAttack:- locX(CurrX),locY(CurrY),
               retract(pArmor(_)),
               NewArmor is Armor-Hit,
               asserta(pArmor(NewArmor)),
-              format('You have been attacked by %s and your armor has received %d damage.\n',[Weapon,Hit]).
+              format('You have been given %s and your reference material is decreased by %d.\n',[Weapon,Hit]).
 enemyAttack:- locX(CurrX),locY(CurrY),
               enemy('E',Weapon,CurrX,CurrY,_),
               damage(Weapon,Hit),
@@ -137,11 +138,11 @@ enemyAttack:- locX(CurrX),locY(CurrY),
               retract(pHealth(_)),retract(pArmor(_)),
               SisaAttack is Hit-Armor,asserta(pArmor(0)),
               NewHP is HP-SisaAttack,asserta(pHealth(NewHP)),
-              format('You have been attacked by %s, your armor has gone, and your health is reduced by %d.\n',[Weapon,SisaAttack]).      
+              format('You have been given %s, you lose your reference material, and your energy is reduced by %d.\n',[Weapon,SisaAttack]).      
 enemyAttack:- locX(CurrX),locY(CurrY),
               enemy('E',Weapon,CurrX,CurrY,_),
               damage(Weapon,Hit),
               pHealth(HP),retract(pHealth(_)),
               NewHP is HP-Hit,asserta(pHealth(NewHP)),
-              format('You have been attacked by %s, you were shot directly without using armor and received %d damage.\n',[Weapon,Hit]).
+              format('You have been given %s, you had no reference for that and suffer %d energy loss.\n',[Weapon,Hit]).
 enemyAttack.

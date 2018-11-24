@@ -87,19 +87,19 @@ look :- locX(X),locY(Y),
 
 /* rule untuk menuliskan semua objek-objek yang ada di lokasi pemain */
 printAllObject :- findall(1,(locX(X),locY(Y),printObject(X,Y)),_).
-printObject(X,Y) :- enemy(_,_,X,Y,_), write('You see an enemy. ').
-printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'W', format('You see an empty %s',[ObjName]),write(' lying on the grass. ').
-printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign \== 'W', format('You see a %s. ',[ObjName]).
+printObject(X,Y) :- enemy(_,_,X,Y,_), write('You see your friend. ').
+printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign == 'W', format('You suddenly thought of %s',[ObjName]),write(' inspiration. ').
+printObject(X,Y) :- benda(Sign,ObjName,X,Y),Sign \== 'W', format('You see %s. ',[ObjName]).
 printObject(X,Y) :- \+(benda(_,_,X,Y)),write('There is nothing in your place.').
 
 /* rule untuk menampilkan semua status player */
-status:- write('Health: '),
+status:- write('Energy : '),
         pHealth(Health),
         write(Health), nl,
-        write('Armor: '),
+        write('Reference : '),
         pArmor(Armor),
         write(Armor), nl,
-        write('Weapon: '),
+        write('Tubes : '),
         printWeapon,nl,
         write('Max Inventory: '),
         maxInventori(MaxInventori),
@@ -110,18 +110,18 @@ status:- write('Health: '),
 /* rule untuk menampilkan ammo jika ada weaponnya */
 printWeapon :- pWeapon(Weapon),write(Weapon),Weapon == none,!.
 printWeapon :- pCurrAmmo(CurrAmmo), CurrAmmo =:= 0, !.
-printWeapon :- pCurrAmmo(CurrAmmo), format('\nAmmo: %d',[CurrAmmo]).
+printWeapon :- pCurrAmmo(CurrAmmo), format('\nSpecification: %d',[CurrAmmo]).
 
 /* RULES MENULIS INVENTORI SEKARANG */
 /* tulis ammo sekarang */
 tulisAmmo(Count) :- Count=\=0, 
                     maxAmmoPack(MaxAmmo),
                     Count >MaxAmmo,
-                    format('\n   Pack of ammo (%d)',[MaxAmmo]),
+                    format('\n   Pack of specification (%d)',[MaxAmmo]),
                     NewAmmo is Count - MaxAmmo,!,
                     tulisAmmo(NewAmmo).
 tulisAmmo(Count) :- Count=\=0,
-                    format('\n   Pack of ammo (%d)',[Count]).
+                    format('\n   Pack of specification (%d)',[Count]).
 tulisAmmo(0).
 /* tulis inventori sekarang */
 tulisInventori([H]) :- H = none,
@@ -148,43 +148,72 @@ printMove:- locX(X),locY(Y),
 /* dafter print sesuai arah */
 printMoveNorth(X,Y):- locX(X),locY(Y),
                       terrainXY(X,Y-1,Terrain),
-                      format('To the north is %s. ',[Terrain]).
+                      format('To the north, there is %s. ',[Terrain]).
 printMoveEast(X,Y):- locX(X),locY(Y),
                      terrainXY(X+1,Y,Terrain),
-                     format('To the east is %s. ',[Terrain]).
+                     format('To the east, there is %s. ',[Terrain]).
 printMoveSouth(X,Y):- locX(X),locY(Y),
                       terrainXY(X,Y+1,Terrain),
-                      format('To the south is %s. ',[Terrain]).
+                      format('To the south, there is %s. ',[Terrain]).
 printMoveWest(X,Y):- locX(X),locY(Y),
                      terrainXY(X-1,Y,Terrain),
-                     format('To the west is %s.',[Terrain]).                                                                        
+                     format('To the west, there is %s.',[Terrain]).                                                                        
 printMoveEnemy(X,Y):- enemy('E',_,X,Y,_),
-                      write('You encounter an enemy! Kill or be killed! ').
+                      write('You bumped into another student! Decide what to do! ').
 printMoveEnemy(_,_).
 
+                                                
+
+
 /* rule yang menampilkan pesan pembuka */
-printWelcome :- write(' ______  _     _ ______   ______                  _             '),nl,
-                write('(_____ \\| |   | (____  \\ / _____)                | |          '),nl,
-                write(' _____) ) |   | |____)  ) /  ___ ____   ____ ___ | | ___   ____ '),nl,
-                write('|  ____/| |   | |  __  (| | (___)  _ \\ / ___) _ \\| |/ _ \\ / _  |'),nl,
-                write('| |     | |___| | |__)  ) \\____/| | | | |  | |_| | | |_| ( ( | |'),nl,
-                write('|_|      \\______|______/ \\_____/| ||_/|_|   \\___/|_|\\___/ \\_|| |'),nl, 
-                write('                                |_|                      (_____|'),nl,       
-                write('Welcome to the battlefield!'), nl,
-                write('You have been chosen as one of the lucky contestants. Be the last man standing and you will be remembered as one of the victors'), nl, nl,
+printWelcome :- nl,nl,write('Suatu hari di ITB, Institut Tugas Besar, seluruh mahasiswa jurusan IF sedang mengerjakan tubes,'),
+                nl,write(' hal yang biasa di institut ini. Akan tetapi karena sudah sering memberi tubes, para dosen mulai '),
+                nl,write('malas untuk membuat tubes lagi. Hingga suatu saat, seorang dosen mendapat ide brilian. Dosen tersebut'),
+                nl,write('mempunyai ide, yaitu ia akan menyuruh sesama mahasiswa untuk memberi tubes satu sama lain. Saat dia '),
+                nl,write('memberi tahu ide ini pada teman-teman dosennya, ruangan dosen langsung penuh keriuhan, semua setuju...'),
+                nl,write(' Selama beberapa hari mereka menentukan cara terbaik untuk mengeksekusi ide ini. Hasilnya adalah...'),
+                nl,printLogo,nl,nl,
+                write('Terinspirasi dari fenomena battle royale seperti PUBG dan Fortnite, para dosen sepakat untuk membuat sistem '),
+                nl,write('battleroyal untuk tugas besar. Mahasiswa akan memberi tubes satu sama lain, dan urutan bertahannya akan menjadi indeksnya.'),
+                nl,nl,
+                write('Setiap mahasiswa memiliki tingkat energi dan setiap tugas besar memilik beban masing-masing.'),
+                nl,write('Tiap spek yang diberikan akan mengurangi energi para mahasiswa.'),
+                nl,write('Mahasiswa tidak dapat menambahkan energi yang berkurang karena, no sleep.'),
+                nl,write('Mahasiswa juga dapat menggunakan bantuan-bantuan seperti menyalin tubes kating dan lainnya.'),
+                nl,write('Inspirasi untuk membuat tugas besar bisa didapatkan dari tempat-tempat di sekitar ITB.'),
+                nl,
+                nl,write('KAMU, iya kamu, harus melewati ini semua. Orangtuamu bergantung padamu, saudara-saudaramu bergantung padamu,'),
+                nl,write('kampungmu bergantung padamu, untuk dapat A, untuk sukses, dan membawa Indonesia maju.'),nl,nl,
                 printHelp.
+
+printLogo    :- write('        ,----,                                  '),nl,
+                write('      ,/   .`|                                  '),nl,
+                write('    ,`   .\'  :               ,---,.   ,----..   '),nl,
+                write('  ;    ;     /       ,--,  ,\'  .\'  \\ /   /   \\  '),nl,
+                write('.\'___,/    ,\'      ,\'_ /|,---.\' .\' ||   :     : '),nl,
+                write('|    :     |  .--. |  | :|   |  |: |.   |  ;. / '),nl,
+                write(';    |.\';  ;,\'_ /| :  . |:   :  :  /.   ; /--`  '),nl,
+                write('`----\'  |  ||  \' | |  . .:   |    ; ;   | ;  __ '),nl,
+                write('    \'   :  ;|  | \' |  | ||   :     \\|   : |.\' .\''),nl,
+                write('    |   |  \':  | | :  \' ;|   |   . |.   | \'_.\' :'),nl,
+                write('    \'   :  ||  ; \' |  | \'\'   :  \'; |\'   ; : \\  |'),nl,
+                write('    ;   |.\' :  | : ;  ; ||   |  | ; \'   | \'/  .\''),nl,
+                write('    \'---\'   \'  :  `--\'   \\   :   /  |   :    /  '),nl,
+                write('            :  ,      .-./   | ,\'    \\   \\ .\'   '),nl,                 
+                write('             `--`----\'   `----\'       `---`     '),nl.
+
 printHelp :-    write('Available commands: '), nl,
-                write('   start. -- start the game!'),nl,
-                write('   help. -- show the available commands!'),nl,
-                write('   quit. -- quit the game'),nl,
-                write('   look. -- look around you'),nl,
-                write('   n. s. e. w. -- move'),nl,
-                write('   map. -- look at the map, show the deadzone and the safezone'),nl,
-                write('   take(Object). -- pick up an object'),nl,
-                write('   drop(Object). -- drop an object'),nl,
-                write('   use(Object). -- use an object'),nl,                                
-                write('   attack. -- attack enemy that crosses your path'),nl,
-                write('   status. -- show your status'),nl,
+                write('   start.          -- start the game!'),nl,
+                write('   help.           -- show the available commands!'),nl,
+                write('   quit.           -- quit the game'),nl,
+                write('   look.           -- look around you'),nl,
+                write('   n. s. e. w.     -- move'),nl,
+                write('   map.            -- look at the map, show the deadzone and the safezone'),nl,
+                write('   take(Object).   -- pick up an object'),nl,
+                write('   drop(Object).   -- drop an object'),nl,
+                write('   use(Object).    -- use an object'),nl,                                
+                write('   attack.         -- attack enemy that crosses your path'),nl,
+                write('   status.         -- show your status'),nl,
                 write('   save(Filename). -- save your game'),nl,
                 write('   load(Filename). -- load previously saved game'),nl,nl,
                 write('Legends:'),nl, 

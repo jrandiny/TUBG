@@ -45,10 +45,14 @@ saveEnemy(Stream) :- enemy(A,B,C,D,E),
                      format(Stream,'enemy(\'%s\',%s,%d,%d,%d).',[A,B,C,D,E]),nl(Stream),
                      fail;true.
 
+/* save nama */
+saveName(Stream)  :- playerName(Name),
+                     format(Stream, 'playerName(%s).',[Name]),nl(Stream).
+
 /* melakukan semua save ke NamaFile */
 saveAll(NamaFile) :- open(NamaFile,write,Stream),
                      (
-                        saveLoc(Stream),savePetaSize(Stream),saveBenda(Stream),savePeta(Stream),saveInventori(Stream),savePlayer(Stream),saveMaxInventori(Stream),saveEnemy(Stream)
+                        saveName(Stream),saveLoc(Stream),savePetaSize(Stream),saveBenda(Stream),savePeta(Stream),saveInventori(Stream),savePlayer(Stream),saveMaxInventori(Stream),saveEnemy(Stream)
                      ),
                      close(Stream).
 
@@ -66,7 +70,8 @@ removeAll :- retractall(locX(_)),
              retractall(pInventoriAmmo(_)),
              retractall(pCurrAmmo(_)),
              retractall(pInventori(_)),
-             retractall(enemy(_,_,_,_,_)).
+             retractall(enemy(_,_,_,_,_)),
+             retractall(playerName(_)).
 
 /* membaca semua dari file eksternal */
 readAll(Stream) :- at_end_of_stream(Stream).

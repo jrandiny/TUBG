@@ -56,7 +56,10 @@ generateMap(_,Y) :- maxMapSize(Max),Y>Max.
 collectMap(Map) :- generateMap(1,1),findall(Row,tempGenRow(Row),Map),retractall(tempGenRow(_)).
 
 /* rule untuk memulai permainan */
-start :- setupGame,
+start :- write('Enter your name : '),
+         read(Name),
+         assertz(playerName(Name)),
+         setupGame,
          printWelcome,nl,
          repeat,
             write('> '),
@@ -92,14 +95,51 @@ routineCheck :- resize,randomDrop,deadAllEnemy,resolveAllEnemy,moveAllEnemy.
 winGame:- findall(1,(enemy(_,_,_,_,_)),Bag),
           length(Bag,JumlahE),
           JumlahE=:=0,
-          write('WINNER-WINNER\nCHICKEN DINNER!\n').
+          %shell('aplay lagu.wav &'),
+          write('You got an A'),nl,
+          write('YAYY'),nl,
+          sleep(1),
+          write('...hmm'),nl,
+          sleep(1),
+          write('But....'),nl,
+          sleep(1.5),
+          write('What did it cost me...'),nl,
+          sleep(0.5),
+          write('.'),nl,
+          sleep(0.5),
+          write('.'),nl,
+          sleep(0.5),
+          write('.'),nl,
+          sleep(0.5),nl,nl,nl,
+          write('We gather here to support those who have lost their beloved friend and family member'),nl,
+          sleep(2),
+          write('The world is cruel to take away such young man'),nl,
+          sleep(2),
+          write('But life must go on'),nl,
+          sleep(1),
+          write('See you...'),nl,
+          sleep(0.5),
+          write('.'),nl,
+          sleep(0.5),
+          write('.'),nl,
+          sleep(0.5),
+          write('.'),nl,
+          sleep(0.5),
+          playerName(Name),write(Name),nl,
+          write('You will always be remembered...'),nl,
+          sleep(2),
+          write('The person who sacrifice everything...'),nl,
+          sleep(2),nl,
+          write('for tubes...').
+          
 /* predikat yang menyatakan saat kalah */
 loseGame:- pHealth(Health),
            Health =<  0,
-           write('WASTED').
+           write('We are dissapointed in you '),
+           playerName(Name),write(Name),write('.').
 loseGame:- locX(X),locY(Y),
            \+isInside(X,Y),
-           write('The deadzone catches you!'),!.
+           write('The deadline catches you!'),!.
 
 /* rule untuk melakukan random drop pada peta */
 randomDrop:- dropChance(X),

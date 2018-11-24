@@ -52,7 +52,7 @@ resize:- resizeChance(X),
          Size>2,
          retractall(petaSize(_)),
          asserta(petaSize(Size-2)),
-         write('\n\nThe map has shrink!').
+         write('\n\nThe next day has come! Deadline is getting nearer!').
 resize.
 
 /* rule mengambil nama tile sekarang berdasarkan peta */

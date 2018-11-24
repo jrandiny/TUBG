@@ -104,7 +104,7 @@ take(Object) :- locX(CurrX),locY(CurrY),
                 printTake(Object).
 
 /* rule untuk menuliskan apa yang diambil ke layar */
-printTake(Object) :- format('You took %s.',[Object]).
+printTake(Object) :- format('You take %s.',[Object]).
 
 /* KELOMPOK HELPER USE */
 /* rule yang membantu mengevaluasi use */
@@ -150,8 +150,9 @@ use(Object) :- pInventori(Object), armor(Object),
                delInventori(Object),
                printUseArmor(Object).
 /* cek use ammo */
+use(spec) :- use(ammo).
 use(ammo) :- pWeapon(CurrWeapon),
-             CurrWeapon == none,write('No weapon.'),!.
+             CurrWeapon == none,write('No inspiration, mate.'),!.
 use(ammo) :- pInventoriAmmo(InvAmmo), 
              pWeapon(Weapon),
              pCurrAmmo(CurrAmmo),   
@@ -163,25 +164,26 @@ use(ammo) :- pInventoriAmmo(InvAmmo),
 /* rule yang  menggunakan ammo*/
 useAmmo(0,_) :- write('Still full.').
 useAmmo(Selisih,Sisa) :- Sisa >=0,delAmmo(Selisih),
-                         addCurrAmmo(Selisih),write('Reloaded.'),!.
+                         addCurrAmmo(Selisih),write('Specification added.'),!.
 useAmmo(_,_) :- pInventoriAmmo(Add),
                 retractall(pInventoriAmmo(Add)),
                 assertz(pInventoriAmmo(0)),
                 addCurrAmmo(Add),
-                write('Reloaded.').
+                write('Spek added.').
+
 /* Kelompok print use */
-printUseGun(Object) :- write(Object),
-                       write(' is equipped. '),
+printUseGun(Object) :- write('You start to make tubes '),
+                       write(Object),
                        printAmmoCount.
 printUseArmor(Object) :- write(Object),
-                         write(' is equipped. ').
+                         write(' is used. ').
 printUseMedicine(Object) :- write(Object),
-                            write(' is used. ').
+                            write(' is consumed. ').
 /* print jumlah ammo sekarang */
 printAmmoCount:- pCurrAmmo(Count),Count =:= 0,
-                 write('But the gun\'s empty, mate.'),!.
+                 write(', but you have no specification in mind.'),!.
 printAmmoCount:- pCurrAmmo(Count),
-                 format('with %d ammo left.',[Count]).
+                 format('with %d spek left.',[Count]).
 
 /* KELOMPOK DROP */
 /* drop weapon di tangan */
@@ -191,7 +193,7 @@ drop(Object) :- pWeapon(Object),
                 asserta(pWeapon(none)),
                 locX(CurrX),locY(CurrY),
                 asserta(benda('W',Object,CurrX,CurrY)),
-                printDrop(Object),!. 
+                format('You forget all inspiration for %s.', [Object]),!. 
 /* drop objek di inventori */                                                                                                                                                                                                
 drop(Object) :- pInventori(Object),
                 locX(CurrX),locY(CurrY),

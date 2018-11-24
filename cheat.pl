@@ -9,4 +9,4 @@ debug(botKill):- retractall(enemy(_,_,_,_,_)).
 debug(goodbyeTubes):- retract(pHealth(_)),retract(pArmor(_)),asserta(pHealth(0)),asserta(pArmor(0)),write('You commited suicide.').
 debug(sayaSukaTubes):- write('Anda diamuk massa! Anda kehilangan setengah nyawa anda.'),pHealth(Health),NewHP is Health/2,retract(pHealth(_)),asserta(pHealth(NewHP)).
 debug(botAdd(X)):- spawnRandomEnemy(X).
-debug(professionalskit):- retract(pWeapon(_)),asserta(pWeapon(awp)).
+debug(professionalskit):- retract(pWeapon(_)),asserta(pWeapon(alstrukdat)).
