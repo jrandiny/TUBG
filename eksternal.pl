@@ -71,7 +71,8 @@ removeAll :- retractall(locX(_)),
              retractall(pCurrAmmo(_)),
              retractall(pInventori(_)),
              retractall(enemy(_,_,_,_,_)),
-             retractall(playerName(_)).
+             retractall(playerName(_)),
+	     retractall(maxInventori(_)).
 
 /* membaca semua dari file eksternal */
 readAll(Stream) :- at_end_of_stream(Stream).
