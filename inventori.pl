@@ -21,7 +21,7 @@ canPutInventori(ammo,Count)   :- maxInventori(Max),
                                  maxAmmoPack(MaxAmmo),
                                  AmmoSpace is ceiling((CurrAmmo+Count) / MaxAmmo), 
                                  Total is AmmoSpace+InvCount, 
-                                 Total=<Max.
+                                 Total<Max.
 
 /* predikat yang menyatakan apakah kita dapat menjalankan take */
 canTake(Object) :- canPutInventori(object),
