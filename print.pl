@@ -51,7 +51,7 @@ printEnemyMap(X,Y):- write(' X '),!,printEnemyMap(X+1,Y).
 printlook(X,Y) :- \+(isInside(X,Y)), write(' X '),!.
 printlook(X,Y) :- enemy(_,_,LocX,LocY,_),
                   LocX=:=X,LocY=:=Y,
-                  write(' E '),!.
+                  write(' S '),!.
 printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
                   LocX=:=X,LocY=:=Y, 
                   Simbol='M',
@@ -59,15 +59,15 @@ printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
 printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
                   LocX=:=X,LocY=:=Y, 
                   Simbol='W',
-                  write(' W '),!.
+                  write(' T '),!.
 printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
                   LocX=:=X,LocY=:=Y, 
                   Simbol='A',
-                  write(' A '),!.
+                  write(' R '),!.
 printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
                   LocX=:=X,LocY=:=Y, 
                   Simbol='O',
-                  write(' O '),!.
+                  write(' S '),!.
 printlook(X,Y) :- benda(Simbol,_,LocX,LocY),
                   LocX=:=X,LocY=:=Y, 
                   Simbol='B',
@@ -167,11 +167,11 @@ printMoveEnemy(_,_).
 
 /* rule yang menampilkan pesan pembuka */
 printWelcome :- nl,nl,write('Suatu hari di ITB, Institut Tugas Besar, seluruh mahasiswa jurusan IF sedang mengerjakan tubes,'),
-                nl,write(' hal yang biasa di institut ini. Akan tetapi karena sudah sering memberi tubes, para dosen mulai '),
+                nl,write('hal yang biasa di institut ini. Akan tetapi karena sudah sering memberi tubes, para dosen mulai '),
                 nl,write('malas untuk membuat tubes lagi. Hingga suatu saat, seorang dosen mendapat ide brilian. Dosen tersebut'),
                 nl,write('mempunyai ide, yaitu ia akan menyuruh sesama mahasiswa untuk memberi tubes satu sama lain. Saat dia '),
                 nl,write('memberi tahu ide ini pada teman-teman dosennya, ruangan dosen langsung penuh keriuhan, semua setuju...'),
-                nl,write(' Selama beberapa hari mereka menentukan cara terbaik untuk mengeksekusi ide ini. Hasilnya adalah...'),
+                nl,write('Selama beberapa hari mereka menentukan cara terbaik untuk mengeksekusi ide ini. Hasilnya adalah...'),
                 nl,printLogo,nl,nl,
                 write('Terinspirasi dari fenomena battle royale seperti PUBG dan Fortnite, para dosen sepakat untuk membuat sistem '),
                 nl,write('battleroyal untuk tugas besar. Mahasiswa akan memberi tubes satu sama lain, dan urutan bertahannya akan menjadi indeksnya.'),
@@ -217,13 +217,13 @@ printHelp :-    write('Available commands: '), nl,
                 write('   save(Filename). -- save your game'),nl,
                 write('   load(Filename). -- load previously saved game'),nl,nl,
                 write('Legends:'),nl, 
-                write('W = weapon'),nl,                 
-                write('A = armor'),nl, 
-                write('M = medicine'),nl, 
-                write('O = ammo'),nl,
+                write('T = tubes'),nl,                 
+                write('R = reference'),nl, 
+                write('M = meal'),nl, 
+                write('S = spec'),nl,
                 write('B = bag'),nl, 
                 write('P = player'),nl, 
-                write('E = enemy'),nl,
+                write('F = \'friend\''),nl,
                 write('- = accessible'),nl,
                 write('X = inaccessible'),nl.
 
