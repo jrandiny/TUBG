@@ -1,4 +1,4 @@
-# Prolog Battle Royale
+# Tubes Battleground
 
 Game battle royale sangat sederhana yang dibuat dengan bahasa prolog.
 
